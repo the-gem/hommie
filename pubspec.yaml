@@ -7,7 +7,17 @@ environment:
 dependencies: 
   cupertino_icons: ^1.0.2
   flutter_svg: ^0.21.0-nullsafety.0
-
+  carousel_pro: ^1.0.0
+  google_maps_flutter: ^2.0.1
+  checkbox_grouped: ^0.8.1
+  firebase_core: ^0.8.0-1.0.nullsafety.2
+  firebase_auth: ^0.21.0-1.1.nullsafety.3
+  firebase_storage: ^8.0.0-1.0.nullsafety.1
+  cloud_firestore: ^0.17.0-1.0.nullsafety.2
+  uuid: ^3.0.0-nullsafety.1
+  geolocator: ^7.0.0-nullsafety.8
+  geocoding: ^1.0.5
+  multi_image_picker: ^4.6.5
   flutter: 
     sdk: flutter
 dev_dependencies: 
