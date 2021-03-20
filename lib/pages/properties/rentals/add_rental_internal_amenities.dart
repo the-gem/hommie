@@ -108,10 +108,8 @@ class _AddRentalInternalAmenitiesState
                       'service charge included',
                       'hot shower',
                       'balcony',
-                      'Alarm',
                       'Backup Generator',
                       'En Suite',
-                      'Fibre Internet',
                       'Walk In Closet',
                     ],
                     values: [
@@ -121,13 +119,11 @@ class _AddRentalInternalAmenitiesState
                       'service charge included',
                       'hot shower',
                       'balcony',
-                      'Alarm',
                       'Backup Generator',
                       'En Suite',
-                      'Fibre Internet',
                       'Walk In Closet',
                     ],
-                    activeColor: Colors.red,
+                    activeColor: Colors.blue.withBlue(100),
                     checkFirstElement: false,
                     onItemSelected: (selectedItems) {
                       print(selectedItems);

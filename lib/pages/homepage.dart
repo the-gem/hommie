@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hommie/models/rental.dart';
+import 'package:hommie/pages/accounts/login.dart';
 import 'package:hommie/pages/properties/rentals/create_listing.dart';
 import 'package:hommie/pages/properties/rentals/rental_full_page.dart';
 import 'package:hommie/widgets/drawer_list.dart';
@@ -12,6 +13,7 @@ final rentalsTimelineRef = FirebaseFirestore.instance;
 final Reference storageRef = FirebaseStorage.instance.ref("rental");
 final DateTime timestamp = DateTime.now();
 FirebaseFirestore firestore = FirebaseFirestore.instance;
+bool isLoggedIn = false;
 
 class HomePage extends StatefulWidget {
   static const String idscreen = "homescreen";
@@ -78,7 +80,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    // // TODO: implement initState
     super.initState();
   }
 
@@ -128,7 +129,7 @@ class _HomePageState extends State<HomePage> {
               },
               initialCameraPosition: CameraPosition(
                 target: _nairobi,
-                zoom: 11.0,
+                zoom: 13.0,
               ),
             ),
             // Container(
@@ -147,7 +148,7 @@ class _HomePageState extends State<HomePage> {
             // ChatTopBar(),
             Positioned(
               top: 70,
-              left: 15,
+              left: 11,
               child: CircleAvatar(
                 radius: 20,
                 backgroundColor: Colors.blue.withBlue(100),
@@ -198,12 +199,15 @@ class _HomePageState extends State<HomePage> {
                     backgroundColor: Colors.blue.withBlue(100),
                     heroTag: "add listing",
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CreateListing(),
-                        ),
-                      );
+                      isLoggedIn
+                          ? Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CreateListing(),
+                              ),
+                            )
+                          : Navigator.pushNamedAndRemoveUntil(
+                              context, Login.idscreen, (route) => false);
                     },
                     // tooltip: 'add listing',
                     // child: Icon(Icons.add),
@@ -291,7 +295,7 @@ class _HomePageState extends State<HomePage> {
               rentals[_pageController.page.toInt()]
                   .listingCoordinates
                   ?.longitude),
-          zoom: 14,
+          zoom: 20,
           bearing: 45,
           tilt: 45,
         ),
@@ -433,7 +437,7 @@ class _HomePageState extends State<HomePage> {
             result[0].latitude,
             result[0].longitude,
           ),
-          zoom: 14,
+          zoom: 13,
         ),
       ));
     });

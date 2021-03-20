@@ -99,15 +99,17 @@ class _AddRentalSecurityFeaturesState extends State<AddRentalSecurityFeatures> {
                     controller: controller,
                     itemsTitle: [
                       'cctv surveillance',
-                      'electric fence',
+                      'Alarm',
+                      'Electric fence',
                       '24hr security watch',
                     ],
                     values: [
                       "cctv",
-                      "electricFence",
+                      'Alarm',
+                      "ElectricFence",
                       "securityWatch",
                     ],
-                    activeColor: Colors.red,
+                    activeColor: Colors.blue.withBlue(100),
                     checkFirstElement: false,
                     onItemSelected: (selectedItems) {
                       print(selectedItems);

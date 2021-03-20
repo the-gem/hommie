@@ -1,6 +1,6 @@
 name /agency name
 phone number with country code
 email
-company address
+company office location
 tax identification number
 personal id number
