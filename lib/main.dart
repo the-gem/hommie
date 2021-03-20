@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         title: 'Hommie',
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          primarySwatch: Colors.teal,
         ),
         debugShowCheckedModeBanner: false,
         // home: HomePage());

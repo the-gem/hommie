@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hommie/main.dart';
+import 'package:hommie/pages/accounts/list_management.dart';
 import 'package:hommie/pages/accounts/login.dart';
 import 'package:hommie/pages/accounts/user_profile.dart';
+import 'package:hommie/pages/general_pages/feedback.dart';
 import 'package:hommie/pages/homepage.dart';
 
 class DrawerList extends StatefulWidget {
@@ -37,39 +39,37 @@ class _DrawerListState extends State<DrawerList> {
           ),
         ),
         ListTile(
-          title: Text('User Profile'),
+          title: Text('Your Profile'),
           onTap: () {
+            // isLoggedIn
+            //     ?
             Navigator.push(context,
                 MaterialPageRoute(builder: (context) => UserProfile()));
+            // : Navigator.pushNamedAndRemoveUntil(
+            //     context, Login.idscreen, (route) => false);
           },
         ),
         ListTile(
           title: Text('Listing Management'),
           onTap: () {
-            // Update the state of the app.
-            // ...
-          },
-        ),
-        ListTile(
-          title: Text('help center'),
-          onTap: () {
-            // Update the state of the app.
-            // ...
+            // isLoggedIn
+            //     ?
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => ListManagement()));
+            // : Navigator.pushNamedAndRemoveUntil(
+            //     context, Login.idscreen, (route) => false);
           },
         ),
         ListTile(
           title: Text('give feedback'),
           onTap: () {
-            // Update the state of the app.
-            // ...
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => FeedbackPage()));
           },
         ),
         ListTile(
           title: Text('LogOut'.toUpperCase()),
-          onTap: () {
-            // Update the state of the app.
-            // ...
-          },
+          onTap: () {},
         ),
       ],
     );

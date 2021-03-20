@@ -152,28 +152,33 @@ class _UploadImagesState extends State<UploadImages> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
-                      InkWell(
-                        onTap: loadAssets,
-                        child: Container(
-                          width: 130,
-                          height: 50,
-                          color: Colors.white,
-                          child: Center(
-                              child: Text(
-                            "Pick Images",
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.white,
+                          padding: EdgeInsets.all(12),
+                          elevation: 6,
+                        ),
+                        onPressed: loadAssets,
+                        icon: Icon(
+                          Icons.add_a_photo,
+                          size: 27,
+                          color: Colors.blue.withBlue(100),
+                        ),
+                        label: Text("Choose photos",
                             style: TextStyle(
                               color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          )),
-                        ),
+                            )),
                       ),
                       SizedBox(
                         height: 30,
                       ),
-                      InkWell(
-                        onTap: () {
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.white,
+                          padding: EdgeInsets.all(12),
+                          elevation: 6,
+                        ),
+                        onPressed: () {
                           if (images.length == 0) {
                             showDialog(
                                 context: context,
@@ -211,20 +216,15 @@ class _UploadImagesState extends State<UploadImages> {
                             uploadImages(context);
                           }
                         },
-                        child: Container(
-                          width: 130,
-                          height: 50,
-                          color: Colors.white,
-                          child: Center(
-                              child: Text(
-                            "Upload Images",
+                        icon: Icon(
+                          Icons.upload_rounded,
+                          size: 27,
+                          color: Colors.blue.withBlue(100),
+                        ),
+                        label: Text("Upload photos",
                             style: TextStyle(
                               color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          )),
-                        ),
+                            )),
                       ),
                       SizedBox(
                         height: 30,
