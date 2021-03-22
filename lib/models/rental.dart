@@ -10,11 +10,12 @@ class Rental {
   List internalAmenities = [];
   List securityFeatures = [];
   String rentAmount;
-  String postId;
+  String propertyId;
   List imageUrls;
   String bedrooms;
   String bathrooms;
   String deposit;
+  String userId;
   Rental({
     this.location,
     this.securityFeatures,
@@ -27,10 +28,11 @@ class Rental {
     this.propertyTitle,
     this.rentAmount,
     this.imageUrls,
-    this.postId,
+    this.propertyId,
     this.bathrooms,
     this.bedrooms,
     this.deposit,
+    this.userId,
   });
   factory Rental.fromDocument(DocumentSnapshot rentalsSnapshot) {
     return Rental(
@@ -46,9 +48,10 @@ class Rental {
         externalAmenities: rentalsSnapshot['external amenities'],
         imageUrls: rentalsSnapshot['image urls'],
         location: rentalsSnapshot['location'],
-        postId: rentalsSnapshot['post id'],
+        propertyId: rentalsSnapshot['property id'],
         deposit: rentalsSnapshot['deposit'],
         bedrooms: rentalsSnapshot['bedrooms'],
-        bathrooms: rentalsSnapshot['bathrooms']);
+        bathrooms: rentalsSnapshot['bathrooms'],
+        userId: rentalsSnapshot['user id'],);
   }
 }

@@ -4,74 +4,151 @@ admin.initializeApp();
 
 // Create and Deploy Your First Cloud Functions
 // https://firebase.google.com/docs/functions/write-firebase-functions
-//
-// exports.helloWorld = functions.https.onRequest((request, response) => {
-//   functions.logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
-exports.onCreateRental = functions.firestore
-    .document("/{county}/{locality}/{placeName}/{listingType}/{listingSubCategory}/{postId}")
+
+exports.createCurrentUserListings = functions.firestore
+    .document("/users/{user_id}/properties/{county}/{locality}/{propertyId}")
     .onCreate(async (snapshot, context) => {
         const county = context.params.county;
         const locality = context.params.locality;
-        const placeName = context.params.placeName;
         const listingType = context.params.listingType;
         const listingSubCategory = context.params.listingSubCategory;
-        const postId = context.params.postId;
+        const propertyId = context.params.propertyId;
+        const user_id = context.params.user_id;
         // const categoryName = context.params.categoryName;
-        //create user posts ref
-        const propertyPostsRef = admin
+        // users => user_id => properties => kiambu county => ruaka => rentals => bedsitters => property_id
+        //create user properties ref
+        const currentUserPropertiesRef = admin
             .firestore()
-            .collection(county)
-            .doc(locality)
-            .collection(placeName)
+            .collection("users")
+            .doc(user_id)
+            .collection("properties")
+            .doc(county)
+            .collection(locality)
             .doc(listingType)
             .collection(listingSubCategory)
-        //create rentals timelineRef
-        const listingsRef = admin
+        // .doc(propertyId)
+        // get all user listings
+        //users => user id => all listings => property_id //=> profile page
+        //create all current user listings 
+        const currentUserListingRef = admin
             .firestore()
-            .collection(listingType);
-        //get users posts
-        const querySnapshot = await propertyPostsRef.get();
-        //add each user posts to users timeline
-        querySnapshot.forEach(doc => {
+            .collection("users")
+            .doc(user_id)
+            .collection("all listings");
+        //get all user properties
+        const userListingSnapshot = await currentUserPropertiesRef.get();
+        //add each user properties to users timeline
+        userListingSnapshot.forEach(doc => {
             if (doc.exists) {
-                const postId = doc.id;
-                const postData = doc.data();
-                listingsRef.doc(postId).set(postData);
+                const currentUserListingData = doc.data();
+                currentUserListingRef.doc(propertyId).set(currentUserListingData);
             }
         })
     });
-exports.onCreateNewProperty = functions.firestore
-    .document("/properties/{listingType}/{listingSubCategory}/{county}/{locality}/{postId}")
+
+exports.createAllUsersListings = functions.firestore
+    .document("/users/{user_id}/properties/{county}/{locality}/{propertyId}")
     .onCreate(async (snapshot, context) => {
         const county = context.params.county;
         const locality = context.params.locality;
-        // const placeName = context.params.placeName;
         const listingType = context.params.listingType;
         const listingSubCategory = context.params.listingSubCategory;
-        const postId = context.params.postId;
+        const propertyId = context.params.propertyId;
+        const user_id = context.params.user_id;
         // const categoryName = context.params.categoryName;
-        //create user posts ref
-        const propertyRef = admin
+        // users => user_id => properties => kiambu county => ruaka => rentals => bedsitters => property_id
+        //create user properties ref
+        const allUsersPropertiesRef = admin
             .firestore()
+            .collection("users")
+            .doc(user_id)
             .collection("properties")
-            .doc(listingType)
-            .collection(listingSubCategory)
             .doc(county)
             .collection(locality)
-        //create rentals timelineRef
-        const propertiesListingsRef = admin
+            .doc(listingType)
+            .collection(listingSubCategory)
+        // .doc(propertyId)
+        // all users listings
+        //users => listings => general => property_id //=> main page/maps
+        //create all users listings 
+        const allUsersListingRef = admin
             .firestore()
-            .collection(listingType);
-        //get users posts
-        const querySnapshot = await propertyRef.get();
-        //add each user posts to users timeline
-        querySnapshot.forEach(doc => {
+            .collection("users")
+            .doc("listings")
+            .collection("general");
+        //get all user properties
+        const userListingSnapshot = await allUsersPropertiesRef.get();
+        //add each user properties to users timeline
+        userListingSnapshot.forEach(doc => {
             if (doc.exists) {
-                const postId = doc.id;
-                const postData = doc.data();
-                propertiesListingsRef.doc(postId).set(postData);
+                const allUsersListingData = doc.data();
+                allUsersListingRef.doc(propertyId).set(allUsersListingData);
+            }
+        })
+    });
+
+exports.onAccountcreation = functions.firestore
+    .document("/users/{user_id}/{accountType}/{agencyName}")
+    .onCreate(async (snapshot, context) => {
+        const accountType = context.params.accountType;
+        const agencyName = context.params.agencyName;
+        const user_id = context.params.user_id;
+
+        // users => user_id => properties => kiambu county => ruaka => rentals => bedsitters => property_id
+        //create user properties ref
+        const userAccountsRef = admin
+            .firestore()
+            .collection("users")
+            .doc(user_id)
+            .collection(accountType)
+        // .doc(agencyName)
+        // all users listings
+        //users => listings => general => property_id //=> main page/maps
+        //create all users listings 
+        const allUsersAccountsRef = admin
+            .firestore()
+            .collection("users")
+            .doc(user_id)
+            .collection("personal infor");
+        //get all user properties
+        const userAccountSnapshot = await userAccountsRef.get();
+        //add each user properties to users timeline
+        userAccountSnapshot.forEach(doc => {
+            if (doc.exists) {
+                const allUsersAccountsData = doc.data();
+                allUsersAccountsRef.doc(agencyName).set(allUsersAccountsData);
+            }
+        })
+    });
+    .document("/users/{user_id}/{accountType}/{agencyName}")
+    .onCreate(async (snapshot, context) => {
+        const accountType = context.params.accountType;
+        const agencyName = context.params.agencyName;
+        const user_id = context.params.user_id;
+
+        // users => user_id => properties => kiambu county => ruaka => rentals => bedsitters => property_id
+        //create user properties ref
+        const userAccountsRef = admin
+            .firestore()
+            .collection("users")
+            .doc(user_id)
+            .collection(accountType)
+        // .doc(agencyName)
+        // all users listings
+        //users => listings => general => property_id //=> main page/maps
+        //create all users listings 
+        const allUsersAccountsRef = admin
+            .firestore()
+            .collection("users")
+            .doc(user_id)
+            .collection("personal infor");
+        //get all user properties
+        const userAccountSnapshot = await userAccountsRef.get();
+        //add each user properties to users timeline
+        userAccountSnapshot.forEach(doc => {
+            if (doc.exists) {
+                const allUsersAccountsData = doc.data();
+                allUsersAccountsRef.doc(agencyName).set(allUsersAccountsData);
             }
         })
     });

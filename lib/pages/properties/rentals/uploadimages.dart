@@ -3,6 +3,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:hommie/main.dart';
 import 'package:hommie/pages/homepage.dart';
 import 'package:hommie/widgets/progress_dialog.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
@@ -52,7 +53,7 @@ class _UploadImagesState extends State<UploadImages> {
     getLocation();
   }
 
-  String postId = Uuid().v4();
+  String propertyId = Uuid().v4();
   String county;
   String locality;
   String placeLocation;
@@ -78,42 +79,6 @@ class _UploadImagesState extends State<UploadImages> {
     });
     print("locality: $locality");
   }
-
-  // submitRental() {
-  //   FirebaseFirestore.instance
-  //       .collection(county)
-  //       .doc(locality)
-  //       .collection(placeName)
-  //       .doc(widget.listingType)
-  //       .collection(widget.listingSubCategory)
-  //       .doc(postId)
-  //       .set({
-  //     "post id": postId,
-  //     "rent amount": widget.rentAmount,
-  //     "property title": widget.propertyTitle,
-  //     "listing type": widget.listingType,
-  //     "listing sub category": widget.listingSubCategory,
-  //     "external amenities": widget.externalAmenities,
-  //     "internal amenities": widget.internalAmenities,
-  //     "image urls": imageUrls,
-  //     "coords": GeoPoint(
-  //       widget.listingCoordinates.latitude,
-  //       widget.listingCoordinates.longitude,
-  //     ),
-  //     "land area": widget.landArea,
-  //     "security feature": widget.securityFeatures,
-  //     "location": placeLocation,
-  //   }).then((value) {
-  //     setState(() {
-  //       postId = Uuid().v4();
-  //     });
-  //     Navigator.pushNamedAndRemoveUntil(
-  //         context, HomePage.idscreen, (route) => false);
-  //   });
-
-  //   print(
-  //       'dataa ${widget.listingType},${widget.listingCoordinates},${widget.landArea}, ${widget.securityFeatures}');
-  // }
 
   Widget buildGridView() {
     return GridView.count(
@@ -260,17 +225,20 @@ class _UploadImagesState extends State<UploadImages> {
         imageUrls.add(downloadUrl.toString());
         if (imageUrls.length == images.length) {
           // String documnetID = DateTime.now().millisecondsSinceEpoch.toString();
+         // users => user_id => properties => kiambu county => ruaka => rentals => bedsitters => property_id //=> everything will be generated from this
+
           FirebaseFirestore.instance
+              .collection("users")
+              .doc(user.uid)
               .collection("properties")
-              .doc(widget.listingType)
-              .collection(widget.listingSubCategory)
               .doc(county)
               .collection(locality)
-              // .doc(widget.listingType)
-              // .collection(widget.listingSubCategory)
-              .doc(postId)
+              .doc(widget.listingType)
+              .collection(widget.listingSubCategory)
+              .doc(propertyId)
               .set({
-            "post id": postId,
+            "property id": propertyId,
+            "user id": user.uid,
             "rent amount": widget.rentAmount,
             "property title": widget.propertyTitle,
             "listing type": widget.listingType,
@@ -296,7 +264,7 @@ class _UploadImagesState extends State<UploadImages> {
             setState(() {
               images = [];
               imageUrls = [];
-              postId = Uuid().v4();
+              propertyId = Uuid().v4();
             });
             Navigator.pushNamedAndRemoveUntil(
                 context, HomePage.idscreen, (route) => false);

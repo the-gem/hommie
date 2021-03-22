@@ -23,9 +23,10 @@ class _ChooseAccountTypeState extends State<ChooseAccountType> {
               top: 100,
             ),
             child: Center(
-              child: Column(
+              child: ListView(
                 children: [
                   Container(
+                    alignment: Alignment.center,
                     margin: EdgeInsets.only(top: 50, bottom: 20),
                     child: Text("Choose one",
                         style: TextStyle(
@@ -59,7 +60,7 @@ class _ChooseAccountTypeState extends State<ChooseAccountType> {
                         children: [
                           Container(
                             height: 80,
-                            width: 150,
+                            width: 130,
                             color: Colors.transparent,
                             child: Center(
                                 child: Text(
@@ -104,7 +105,7 @@ class _ChooseAccountTypeState extends State<ChooseAccountType> {
                         children: [
                           Container(
                             height: 80,
-                            width: 150,
+                            width: 130,
                             color: Colors.transparent,
                             child: Center(
                               child: Text(

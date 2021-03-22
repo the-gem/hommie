@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
@@ -14,6 +15,9 @@ final Reference storageRef = FirebaseStorage.instance.ref("rental");
 final DateTime timestamp = DateTime.now();
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 bool isLoggedIn = false;
+String currentUserId = '';
+FirebaseAuth auth = FirebaseAuth.instance;
+  String countryCode = "+254";
 
 class HomePage extends StatefulWidget {
   static const String idscreen = "homescreen";
@@ -37,9 +41,12 @@ class _HomePageState extends State<HomePage> {
         .toList();
     setState(() {
       this.rentals = rentalsTimelinePosts;
+      rentals.isEmpty || rentals == null
+          ? mapBottomPadding = 0
+          : mapBottomPadding = 120;
       rentals.forEach((element) {
         allMarkers.add(Marker(
-            markerId: MarkerId(element.postId),
+            markerId: MarkerId(element.propertyId),
             draggable: false,
             infoWindow: InfoWindow(
                 title: element.propertyTitle,
@@ -53,11 +60,6 @@ class _HomePageState extends State<HomePage> {
         print("external amenities ${element.externalAmenities}");
         this.allMarkers = allMarkers;
       });
-      if (allMarkers != null || allMarkers.isNotEmpty) {
-        setState(() {
-          mapBottomPadding = 120;
-        });
-      }
       _pageController = PageController(initialPage: 1, viewportFraction: 0.8)
         ..addListener(_onScroll);
     });
@@ -66,7 +68,7 @@ class _HomePageState extends State<HomePage> {
   void _onScroll() {
     if (_pageController.page.toInt() != prevPage) {
       prevPage = _pageController.page.toInt();
-      moveCamera();
+      allMarkers != null ?? moveCamera();
     }
   }
 
@@ -80,7 +82,19 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    FirebaseAuth.instance.authStateChanges().listen((User user) {
+      currentUserId = "";
+      if (auth.currentUser == null) {
+        print('User is currently signed out!');
+        isLoggedIn = false;
+      } else {
+        currentUserId = auth.currentUser.uid;
+        isLoggedIn = true;
+        print('User is signed in!');
+      }
+    });
     super.initState();
+    getTimeline();
   }
 
   PageController _pageController;
@@ -91,18 +105,9 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   backgroundColor: Colors.white,
-      //   automaticallyImplyLeading: false,
-      //   title: Text("Hommie",
-      //   style: TextStyle(color: Colors.blue.withBlue(100))),
-      //   // actions: [
-      //   //   Icon(Icons.nightlight_round),
-      //   //   Icon(Icons.more_vert),
-      //   // ],
-      // ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      // floatingActionButton: // This trailing
+      appBar: AppBar(
+        title: Text(currentUserId),
+      ),
       drawer: Drawer(
         child: DrawerList(),
       ),
@@ -123,7 +128,6 @@ class _HomePageState extends State<HomePage> {
               zoomGesturesEnabled: true,
               mapType: MapType.normal,
               onMapCreated: (GoogleMapController controller) {
-                // _controllerGoogleMap.complete(controller);
                 mapController = controller;
                 getTimeline();
               },
@@ -132,20 +136,6 @@ class _HomePageState extends State<HomePage> {
                 zoom: 13.0,
               ),
             ),
-            // Container(
-            //   margin: EdgeInsets.only(top: 60),
-            //   color: Colors.white,
-            //   width: double.infinity,
-            //   child: ListView(
-            //     children: [
-            //       ChatListCard("assets/images/logo.jpg", "Axis Real Estate"),
-            //       ChatListCard("assets/images/logo.jpg", "Axis Real Estate"),
-            //       ChatListCard("assets/images/logo.jpg", "Axis Real Estate"),
-            //       ChatListCard("assets/images/logo.jpg", "Axis Real Estate"),
-            //     ],
-            //   ),
-            // ),
-            // ChatTopBar(),
             Positioned(
               top: 70,
               left: 11,
@@ -339,7 +329,7 @@ class _HomePageState extends State<HomePage> {
                     securityFeatures: rentals[index].securityFeatures,
                     imageUrls: rentals[index].imageUrls,
                     location: rentals[index].location,
-                    postId: rentals[index].postId,
+                    propertyId: rentals[index].propertyId,
                     bedrooms: rentals[index].bedrooms,
                     bathrooms: rentals[index].bathrooms,
                     deposit: rentals[index].deposit,

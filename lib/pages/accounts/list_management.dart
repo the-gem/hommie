@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hommie/pages/accounts/edit_listing.dart';
+import 'package:hommie/pages/accounts/login.dart';
+import 'package:hommie/pages/homepage.dart';
 import 'package:hommie/pages/properties/rentals/create_listing.dart';
 import 'package:hommie/pages/properties/rentals/rental_full_page.dart';
 
@@ -18,12 +20,15 @@ class _ListManagementState extends State<ListManagement> {
         ),
         bottomSheet: GestureDetector(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => CreateListing(),
-              ),
-            );
+            isLoggedIn
+                ? Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CreateListing(),
+                    ),
+                  )
+                : Navigator.pushNamedAndRemoveUntil(
+                    context, Login.idscreen, (route) => false);
           },
           child: Container(
               width: MediaQuery.of(context).size.width,

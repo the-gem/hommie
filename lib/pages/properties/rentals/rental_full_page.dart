@@ -15,7 +15,7 @@ class RentalFullPage extends StatefulWidget {
   final String landArea;
   final List securityFeatures;
   final String location;
-  final String postId;
+  final String propertyId;
   final String bedrooms;
   final String bathrooms;
   final String deposit;
@@ -31,7 +31,7 @@ class RentalFullPage extends StatefulWidget {
     this.rentAmount,
     this.securityFeatures,
     this.location,
-    this.postId,
+    this.propertyId,
     this.bathrooms,
     this.bedrooms,
     this.deposit,
@@ -49,7 +49,7 @@ class RentalFullPage extends StatefulWidget {
         landArea: this.landArea,
         securityFeatures: this.securityFeatures,
         location: this.location,
-        postId: this.postId,
+        propertyId: this.propertyId,
         bathrooms: this.bathrooms,
         bedrooms: this.bedrooms,
         deposit: this.deposit,
@@ -58,7 +58,7 @@ class RentalFullPage extends StatefulWidget {
 
 class _RentalFullPageState extends State<RentalFullPage> {
   final String rentAmount;
-  final String postId;
+  final String propertyId;
   final String propertyTitle;
   final String listingType;
   final String listingSubCategory;
@@ -84,7 +84,7 @@ class _RentalFullPageState extends State<RentalFullPage> {
       this.rentAmount,
       this.securityFeatures,
       this.location,
-      this.postId,
+      this.propertyId,
       this.bathrooms,
       this.bedrooms,
       this.deposit});
@@ -117,11 +117,11 @@ class _RentalFullPageState extends State<RentalFullPage> {
     placeLoc =
         LatLng(listingCoordinates.latitude, listingCoordinates.longitude);
     myMarker.add(Marker(
-        markerId: MarkerId(postId),
+        markerId: MarkerId(propertyId),
         draggable: false,
         position:
             LatLng(listingCoordinates.latitude, listingCoordinates.longitude)));
-    print(postId);
+    print(propertyId);
   }
 
   List<Marker> myMarker = [];

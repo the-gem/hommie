@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hommie/main.dart';
 import 'package:hommie/pages/accounts/list_management.dart';
@@ -41,23 +42,21 @@ class _DrawerListState extends State<DrawerList> {
         ListTile(
           title: Text('Your Profile'),
           onTap: () {
-            // isLoggedIn
-            //     ?
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => UserProfile()));
-            // : Navigator.pushNamedAndRemoveUntil(
-            //     context, Login.idscreen, (route) => false);
+            isLoggedIn
+                ? Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => UserProfile()))
+                : Navigator.pushNamedAndRemoveUntil(
+                    context, Login.idscreen, (route) => false);
           },
         ),
         ListTile(
           title: Text('Listing Management'),
           onTap: () {
-            // isLoggedIn
-            //     ?
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => ListManagement()));
-            // : Navigator.pushNamedAndRemoveUntil(
-            //     context, Login.idscreen, (route) => false);
+            isLoggedIn
+                ? Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => ListManagement()))
+                : Navigator.pushNamedAndRemoveUntil(
+                    context, Login.idscreen, (route) => false);
           },
         ),
         ListTile(
@@ -67,11 +66,23 @@ class _DrawerListState extends State<DrawerList> {
                 MaterialPageRoute(builder: (context) => FeedbackPage()));
           },
         ),
-        ListTile(
+        isLoggedIn ? ListTile(
           title: Text('LogOut'.toUpperCase()),
-          onTap: () {},
-        ),
+          onTap: () {
+            logoutUser();
+          },
+        ): Container(),
       ],
     );
+  }
+
+  logoutUser() async {
+    await FirebaseAuth.instance.signOut();
+    setState(() {
+      isLoggedIn = false;
+      currentUserId = "";
+    });
+    SnackBar snackbar = SnackBar(content: Text('Successfully logged out'));
+    ScaffoldMessenger.of(context).showSnackBar(snackbar);
   }
 }

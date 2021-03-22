@@ -4,3 +4,17 @@ email
 company office location
 tax identification number
 personal id number
+
+//master listing
+users => user_id => properties => kiambu county => ruaka => rentals => bedsitters => property_id //=> everything will be generated from this
+..
+// get all user listings
+users => user id => all listings => property_id //=> profile page
+..
+//get all user rentals **will be implemented**
+users => user id => rentals => property_id
+// all users listings
+users => listings => general => property_id //=> main page/maps
+..
+// get all users rentals **will be implemented**
+users => listings => rentals => property_id 
