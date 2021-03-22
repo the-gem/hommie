@@ -120,35 +120,3 @@ exports.onAccountcreation = functions.firestore
             }
         })
     });
-    .document("/users/{user_id}/{accountType}/{agencyName}")
-    .onCreate(async (snapshot, context) => {
-        const accountType = context.params.accountType;
-        const agencyName = context.params.agencyName;
-        const user_id = context.params.user_id;
-
-        // users => user_id => properties => kiambu county => ruaka => rentals => bedsitters => property_id
-        //create user properties ref
-        const userAccountsRef = admin
-            .firestore()
-            .collection("users")
-            .doc(user_id)
-            .collection(accountType)
-        // .doc(agencyName)
-        // all users listings
-        //users => listings => general => property_id //=> main page/maps
-        //create all users listings 
-        const allUsersAccountsRef = admin
-            .firestore()
-            .collection("users")
-            .doc(user_id)
-            .collection("personal infor");
-        //get all user properties
-        const userAccountSnapshot = await userAccountsRef.get();
-        //add each user properties to users timeline
-        userAccountSnapshot.forEach(doc => {
-            if (doc.exists) {
-                const allUsersAccountsData = doc.data();
-                allUsersAccountsRef.doc(agencyName).set(allUsersAccountsData);
-            }
-        })
-    });
