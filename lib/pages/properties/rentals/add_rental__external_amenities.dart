@@ -52,9 +52,6 @@ class _AddRentalExternalAmenitiesState
         ),
       ),
     );
-    print("external amenities$externalAmenities");
-
-    print('coordinates: ${widget.listingCoordinates}');
   }
 
   String parking;
@@ -119,7 +116,6 @@ class _AddRentalExternalAmenitiesState
                     ],
                     checkFirstElement: false,
                     onItemSelected: (selectedItems) {
-                      print(selectedItems);
                       setState(() {
                         externalAmenities = selectedItems;
                       });

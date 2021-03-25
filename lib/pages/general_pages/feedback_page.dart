@@ -1,20 +1,18 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:hommie/pages/accounts/otp.dart';
+import 'package:hommie/pages/accounts/login.dart';
 import 'package:hommie/pages/homepage.dart';
+import 'package:uuid/uuid.dart';
 
-class LandLordRegistration extends StatefulWidget {
-  static const String idscreen = "LandlordRegistration";
-  final String accountType;
-  LandLordRegistration({this.accountType});
+class FeedbackPage extends StatefulWidget {
   @override
-  _LandLordRegistrationState createState() => _LandLordRegistrationState();
+  _FeedbackPageState createState() => _FeedbackPageState();
 }
 
-class _LandLordRegistrationState extends State<LandLordRegistration> {
-  String landlordName;
-  String phoneNumber;
-  String idNumber;
-  String phone;
+class _FeedbackPageState extends State<FeedbackPage> {
+  String header;
+  String body;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,7 +20,7 @@ class _LandLordRegistrationState extends State<LandLordRegistration> {
         child: Stack(
           children: [
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 20),
+              padding: EdgeInsets.symmetric(horizontal: 30),
               child: Column(
                 children: [
                   Container(
@@ -30,15 +28,15 @@ class _LandLordRegistrationState extends State<LandLordRegistration> {
                     color: Colors.white,
                     height: 100,
                     margin: EdgeInsets.only(
-                      top: 40,
+                      top: 60,
                     ),
                     child: Center(
                       child: Text(
-                        "Landlord Details",
+                        "help us get better".toUpperCase(),
                         style: TextStyle(
                           color: Colors.blue.withBlue(100),
                           fontWeight: FontWeight.bold,
-                          fontSize: 40,
+                          fontSize: 30,
                         ),
                       ),
                     ),
@@ -47,73 +45,50 @@ class _LandLordRegistrationState extends State<LandLordRegistration> {
                     height: 50,
                     child: TextField(
                       decoration: InputDecoration(
+                        hintStyle: TextStyle(
+                          color: Colors.black,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(
                             Radius.circular(30),
                           ),
                         ),
-                        labelText: 'Full name',
+                        labelText: 'topic'.toUpperCase(),
                       ),
                       onChanged: (value) {
-                        landlordName = value;
+                        header = value;
                       },
                     ),
                   ),
-                  SizedBox(
-                    height: 15,
-                  ),
+                  SizedBox(height: 20),
                   Container(
-                    height: 50,
+                    // width: 250,
                     child: TextField(
+                      minLines: 10,
+                      maxLines: 20,
                       decoration: InputDecoration(
+                        hintStyle: TextStyle(
+                          color: Colors.black,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(
                             Radius.circular(30),
                           ),
                         ),
-                        labelText: 'phone number',
-                        prefixText: countryCode,
                       ),
                       onChanged: (value) {
-                        phoneNumber = value;
-                        phone = countryCode + phoneNumber;
-            
+                        body = value;
                       },
                     ),
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  Container(
-                    height: 50,
-                    child: TextField(
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(30),
-                          ),
-                        ),
-                        labelText: 'tax identification number',
-                      ),
-                      onChanged: (value) {
-                        idNumber = value;
-                      },
-                    ),
-                  ),
-                  SizedBox(
-                    height: 15,
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => OtpScreen(
-                                    phoneNumber: phone,
-                                    accountType: widget.accountType,
-                                    idNumber: idNumber,
-                                    name: landlordName,
-                                  )));
+                      if (isLoggedIn) {
+                        sendFeedback();
+                      } else {
+                        Navigator.pushNamedAndRemoveUntil(
+                            context, Login.idscreen, (route) => false);
+                      }
                     },
                     child: Card(
                       margin: EdgeInsets.all(20),
@@ -122,10 +97,10 @@ class _LandLordRegistrationState extends State<LandLordRegistration> {
                       ),
                       color: Colors.blue.withBlue(150),
                       child: Container(
-                        width: 200,
+                        width: MediaQuery.of(context).size.width,
                         height: 50,
                         child: Center(
-                          child: Text("Register".toUpperCase(),
+                          child: Text("send feedback".toUpperCase(),
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 20,
@@ -146,12 +121,35 @@ class _LandLordRegistrationState extends State<LandLordRegistration> {
                     Navigator.pushNamedAndRemoveUntil(
                         context, HomePage.idscreen, (route) => false);
                   },
-                  child: Icon(Icons.cancel,
-                      size: 35, color: Colors.blue.withBlue(150)),
+                  child: Icon(
+                    Icons.cancel,
+                    size: 35,
+                    color: Colors.blue.withBlue(150),
+                  ),
                 )),
           ],
         ),
       ),
     );
+  }
+
+  sendFeedback() async {
+    final CollectionReference feedbackRef =
+        FirebaseFirestore.instance.collection("feedback");
+    String feedbackId = Uuid().v4();
+    await feedbackRef.doc(feedbackId).set({
+      "header": header,
+      "phone number": currentUser.phoneNumber,
+      "body": body,
+    }).then((value) {
+      setState(() {
+        feedbackId = Uuid().v4();
+      });
+      SnackBar snackbar = SnackBar(
+        duration: Duration(seconds: 5),
+        content: Text('well solve the issue as soon as possible!'),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackbar);
+    });
   }
 }

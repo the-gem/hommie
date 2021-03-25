@@ -18,6 +18,7 @@ dependencies:
   geolocator: ^7.0.0-nullsafety.8
   geocoding: ^1.0.5
   multi_image_picker: ^4.6.5
+  animations: ^2.0.0
   pinput: ^1.2.0
   flutter: 
     sdk: flutter
@@ -25,6 +26,6 @@ dev_dependencies:
   flutter_test: 
     sdk: flutter
 flutter: 
-  assets: 
-    - assets/images/
+  # assets: 
+    # - assets/images/
   uses-material-design: true

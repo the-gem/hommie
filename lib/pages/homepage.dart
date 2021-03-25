@@ -1,23 +1,26 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hommie/models/rental.dart';
+import 'package:hommie/models/user.dart';
 import 'package:hommie/pages/accounts/login.dart';
 import 'package:hommie/pages/properties/rentals/create_listing.dart';
 import 'package:hommie/pages/properties/rentals/rental_full_page.dart';
 import 'package:hommie/widgets/drawer_list.dart';
 
+MyUser currentUser;
+Rental rental;
 final rentalsTimelineRef = FirebaseFirestore.instance;
-final Reference storageRef = FirebaseStorage.instance.ref("rental");
+final CollectionReference usersRef =
+    FirebaseFirestore.instance.collection('users');
 final DateTime timestamp = DateTime.now();
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 bool isLoggedIn = false;
 String currentUserId = '';
 FirebaseAuth auth = FirebaseAuth.instance;
-  String countryCode = "+254";
+String countryCode = "+254";
 
 class HomePage extends StatefulWidget {
   static const String idscreen = "homescreen";
@@ -32,52 +35,22 @@ class _HomePageState extends State<HomePage> {
   List<Rental> rentals = [];
   double mapBottomPadding = 0;
 
-  getTimeline() async {
-    QuerySnapshot rentalsSnapshot =
-        await rentalsTimelineRef.collection("rental").get();
-
-    List<Rental> rentalsTimelinePosts = rentalsSnapshot.docs
-        .map((rentalsSnapshot) => Rental.fromDocument(rentalsSnapshot))
-        .toList();
-    setState(() {
-      this.rentals = rentalsTimelinePosts;
-      rentals.isEmpty || rentals == null
-          ? mapBottomPadding = 0
-          : mapBottomPadding = 120;
-      rentals.forEach((element) {
-        allMarkers.add(Marker(
-            markerId: MarkerId(element.propertyId),
-            draggable: false,
-            infoWindow: InfoWindow(
-                title: element.propertyTitle,
-                snippet: element.rentAmount,
-                onTap: () {
-                  // moveCamera();
-                  showRentalFullPage();
-                }),
-            position: LatLng(element.listingCoordinates.latitude,
-                element.listingCoordinates.longitude)));
-        print("external amenities ${element.externalAmenities}");
-        this.allMarkers = allMarkers;
-      });
-      _pageController = PageController(initialPage: 1, viewportFraction: 0.8)
-        ..addListener(_onScroll);
-    });
-  }
-
   void _onScroll() {
     if (_pageController.page.toInt() != prevPage) {
       prevPage = _pageController.page.toInt();
-      allMarkers != null ?? moveCamera();
+      if (allMarkers != null) {
+        moveCamera();
+      }
     }
   }
 
-  showRentalFullPage() {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => RentalFullPage(),
-        ));
+  getUser() async {
+    usersRef
+        .doc(currentUserId)
+        .snapshots()
+        .listen((DocumentSnapshot documentSnapshot) {
+      currentUser = MyUser.fromDocument(documentSnapshot);
+    });
   }
 
   @override
@@ -85,16 +58,14 @@ class _HomePageState extends State<HomePage> {
     FirebaseAuth.instance.authStateChanges().listen((User user) {
       currentUserId = "";
       if (auth.currentUser == null) {
-        print('User is currently signed out!');
         isLoggedIn = false;
       } else {
         currentUserId = auth.currentUser.uid;
         isLoggedIn = true;
-        print('User is signed in!');
+        getUser();
       }
     });
     super.initState();
-    getTimeline();
   }
 
   PageController _pageController;
@@ -104,173 +75,187 @@ class _HomePageState extends State<HomePage> {
   String searchAddr;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(currentUserId),
-      ),
-      drawer: Drawer(
-        child: DrawerList(),
-      ),
-      key: _scaffoldKey,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            GoogleMap(
-              markers: Set.from(allMarkers),
-              padding: EdgeInsets.only(
-                top: 60,
-                bottom: mapBottomPadding,
-              ),
-              myLocationButtonEnabled: true,
-              myLocationEnabled: true,
-              trafficEnabled: true,
-              zoomControlsEnabled: true,
-              zoomGesturesEnabled: true,
-              mapType: MapType.normal,
-              onMapCreated: (GoogleMapController controller) {
-                mapController = controller;
-                getTimeline();
-              },
-              initialCameraPosition: CameraPosition(
-                target: _nairobi,
-                zoom: 13.0,
-              ),
-            ),
-            Positioned(
-              top: 70,
-              left: 11,
-              child: CircleAvatar(
-                radius: 20,
-                backgroundColor: Colors.blue.withBlue(100),
-                child: IconButton(
-                  icon: Icon(
-                    Icons.refresh,
-                    color: Colors.white,
+    CollectionReference listings =
+        FirebaseFirestore.instance.collection('listings');
+    listings.snapshots().listen((QuerySnapshot rentalsSnapshot) {
+      List<Rental> rentalsTimelinePosts = rentalsSnapshot.docs
+          .map((rentalsSnapshot) => Rental.fromDocument(rentalsSnapshot))
+          .toList();
+      setState(() {
+        this.rentals = rentalsTimelinePosts;
+        rentals.isEmpty || rentals == null
+            ? mapBottomPadding = 0
+            : mapBottomPadding = 120;
+        rentals.forEach((element) {
+          allMarkers.add(Marker(
+              markerId: MarkerId(element.propertyId),
+              draggable: false,
+              infoWindow: InfoWindow(
+                  title: element.propertyTitle,
+                  snippet: element.rentAmount,
+                  onTap: () {
+                    // moveCamera();
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RentalFullPage(
+                            rentAmount: element.rentAmount,
+                            propertyTitle: element.propertyTitle,
+                            listingType: element.listingType,
+                            listingSubCategory: element.listingSubCategory,
+                            externalAmenities: element.externalAmenities,
+                            internalAmenities: element.internalAmenities,
+                            listingCoordinates: element.listingCoordinates,
+                            landArea: element.landArea,
+                            securityFeatures: element.securityFeatures,
+                            imageUrls: element.imageUrls,
+                            location: element.location,
+                            propertyId: element.propertyId,
+                            bedrooms: element.bedrooms,
+                            bathrooms: element.bathrooms,
+                            deposit: element.deposit,
+                            rentalOwnerId: element.userId,
+                          ),
+                        ));
+                  }),
+              position: LatLng(element.listingCoordinates.latitude,
+                  element.listingCoordinates.longitude)));
+          this.allMarkers = allMarkers;
+        });
+        _pageController = PageController(initialPage: 1, viewportFraction: 0.8)
+          ..addListener(_onScroll);
+      });
+    });
+    return StreamBuilder<QuerySnapshot>(
+      stream: listings.snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        return Scaffold(
+          drawer: Drawer(
+            child: DrawerList(),
+          ),
+          key: _scaffoldKey,
+          body: SafeArea(
+            child: Stack(
+              children: [
+                GoogleMap(
+                  markers: Set.from(allMarkers),
+                  padding: EdgeInsets.only(
+                    top: 60,
+                    bottom: mapBottomPadding,
                   ),
-                  onPressed: () {
-                    getTimeline();
+                  myLocationButtonEnabled: true,
+                  myLocationEnabled: true,
+                  mapType: MapType.normal,
+                  onMapCreated: (GoogleMapController controller) {
+                    mapController = controller;
                   },
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: 0,
-              child: Container(
-                  height: 140,
-                  width: MediaQuery.of(context).size.width,
-                  child: PageView.builder(
-                    controller: _pageController,
-                    itemCount: rentals.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return _rentalsList(index);
-                    },
-                  )),
-            ),
-            Positioned(
-              bottom: mapBottomPadding + 15,
-              child: Column(
-                children: [
-                  // FloatingActionButton(
-                  //   backgroundColor: Colors.blue.withBlue(100),
-                  //   heroTag: "search",
-                  //   onPressed: () {
-                  //     Navigator.push(
-                  //       context,
-                  //       MaterialPageRoute(
-                  //         builder: (context) => GetPropertyLocation(),
-                  //       ),
-                  //     );
-                  //   },
-                  //   tooltip: 'search',
-                  //   child: Icon(Icons.search),
-                  // ),
-                  // SizedBox(height: 10),
-                  FloatingActionButton.extended(
-                    backgroundColor: Colors.blue.withBlue(100),
-                    heroTag: "add listing",
-                    onPressed: () {
-                      isLoggedIn
-                          ? Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => CreateListing(),
-                              ),
-                            )
-                          : Navigator.pushNamedAndRemoveUntil(
-                              context, Login.idscreen, (route) => false);
-                    },
-                    // tooltip: 'add listing',
-                    // child: Icon(Icons.add),
-                    label: Text(
-                      'Add listing',
-                      style: TextStyle(fontSize: 12),
-                    ),
-                    icon: Icon(Icons.add, size: 15),
-                    // backgroundColor: Colors.pink,
+                  initialCameraPosition: CameraPosition(
+                    target: _nairobi,
+                    zoom: 13.0,
                   ),
-                ],
-              ),
-            ),
-            Positioned(
-              top: 10,
-              left: 30,
-              right: 30,
-              child: Container(
-                width: 300,
-                height: 50,
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(100),
-                  ),
-                  color: Colors.white,
                 ),
-                alignment: Alignment.centerRight,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                        icon: Icon(
-                          Icons.menu,
-                          size: 25,
-                          color: Colors.black,
-                        ),
-                        onPressed: () =>
-                            _scaffoldKey.currentState.openDrawer()),
-                    Container(
-                      width: 150,
-                      // constraints: BoxConstraints(maxWidth: 220),
-                      child: TextField(
-                        decoration: InputDecoration(
-                            border: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            errorBorder: InputBorder.none,
-                            disabledBorder: InputBorder.none,
-                            hintText: "search place...",
-                            hintStyle: TextStyle(fontSize: 15)),
-                        onChanged: (value) {
-                          setState(() {
-                            searchAddr = value;
-                          });
+                Positioned(
+                  bottom: 0,
+                  child: Container(
+                      height: 140,
+                      width: MediaQuery.of(context).size.width,
+                      child: PageView.builder(
+                        controller: _pageController,
+                        itemCount: rentals.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return _rentalsList(index);
                         },
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: searchAndNavigate,
-                      child: Icon(
-                        Icons.search,
-                        size: 18,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
+                      )),
                 ),
-              ),
+                Positioned(
+                  bottom: mapBottomPadding + 15,
+                  child: Column(
+                    children: [
+                      FloatingActionButton.extended(
+                        backgroundColor: Colors.blue.withBlue(100),
+                        heroTag: "add listing",
+                        onPressed: () {
+                          isLoggedIn
+                              ? Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CreateListing(),
+                                  ),
+                                )
+                              : Navigator.pushNamedAndRemoveUntil(
+                                  context, Login.idscreen, (route) => false);
+                        },
+                        label: Text(
+                          'Add listing',
+                          style: TextStyle(fontSize: 12),
+                        ),
+                        icon: Icon(Icons.add, size: 15),
+                      ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  top: 10,
+                  left: 30,
+                  right: 30,
+                  child: Container(
+                    width: 300,
+                    height: 50,
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(100),
+                      ),
+                      color: Colors.white,
+                    ),
+                    alignment: Alignment.centerRight,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                            icon: Icon(
+                              Icons.menu,
+                              size: 25,
+                              color: Colors.black,
+                            ),
+                            onPressed: () =>
+                                _scaffoldKey.currentState.openDrawer()),
+                        Container(
+                          width: 150,
+                          // constraints: BoxConstraints(maxWidth: 220),
+                          child: TextField(
+                            decoration: InputDecoration(
+                                border: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                errorBorder: InputBorder.none,
+                                disabledBorder: InputBorder.none,
+                                hintText: "search place...",
+                                hintStyle: TextStyle(fontSize: 15)),
+                            onChanged: (value) {
+                              setState(() {
+                                searchAddr = value;
+                              });
+                            },
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: searchAndNavigate,
+                          child: Icon(
+                            Icons.search,
+                            size: 18,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -285,7 +270,7 @@ class _HomePageState extends State<HomePage> {
               rentals[_pageController.page.toInt()]
                   .listingCoordinates
                   ?.longitude),
-          zoom: 20,
+          zoom: 17,
           bearing: 45,
           tilt: 45,
         ),
@@ -333,6 +318,7 @@ class _HomePageState extends State<HomePage> {
                     bedrooms: rentals[index].bedrooms,
                     bathrooms: rentals[index].bathrooms,
                     deposit: rentals[index].deposit,
+                    rentalOwnerId: rentals[index].userId,
                   ),
                 ));
           },

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:hommie/pages/accounts/edit_listing.dart';
 import 'package:hommie/pages/accounts/login.dart';
@@ -11,43 +12,86 @@ class ListManagement extends StatefulWidget {
 }
 
 class _ListManagementState extends State<ListManagement> {
+  CollectionReference userCollection = FirebaseFirestore.instance
+      .collection('users')
+      .doc(currentUserId)
+      .collection('properties');
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          elevation: 0,
-          title: Text("your listings"),
-        ),
-        bottomSheet: GestureDetector(
-          onTap: () {
-            isLoggedIn
-                ? Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CreateListing(),
-                    ),
-                  )
-                : Navigator.pushNamedAndRemoveUntil(
-                    context, Login.idscreen, (route) => false);
-          },
-          child: Container(
-              width: MediaQuery.of(context).size.width,
-              height: 50,
-              color: Colors.blue.withBlue(150),
-              child: Center(
-                child: Text("Add Listing",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                    )),
-              )),
-        ),
-        body: Container(
-          margin: EdgeInsets.only(bottom: 50),
-          child: ListView(
-            addAutomaticKeepAlives: true,
-            children: [
-              Card(
+    Stream collectionStream = FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUserId)
+        .collection('properties')
+        .snapshots();
+
+    return StreamBuilder<QuerySnapshot>(
+      stream: collectionStream,
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return Scaffold(body: Center(child: Text('Something went wrong')));
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(
+            body: SafeArea(
+              child: Container(
+                alignment: Alignment.center,
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                margin: EdgeInsets.only(top: 60),
+                child: Center(
+                  child: Column(
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 20),
+                      Text("Loading..",
+                          style: TextStyle(
+                            fontSize: 25,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.blue.withBlue(150),
+                          )),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+
+        return Scaffold(
+          appBar: AppBar(
+            elevation: 0,
+            title: Text("your listings".toUpperCase()),
+          ),
+          bottomSheet: GestureDetector(
+            onTap: () {
+              isLoggedIn
+                  ? Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CreateListing(),
+                      ),
+                    )
+                  : Navigator.pushNamedAndRemoveUntil(
+                      context, Login.idscreen, (route) => false);
+            },
+            child: Container(
+                width: MediaQuery.of(context).size.width,
+                height: 50,
+                color: Colors.blue.withBlue(150),
+                child: Center(
+                  child: Text("Add Listing",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                      )),
+                )),
+          ),
+          body: Container(
+            margin: EdgeInsets.only(bottom: 50),
+            child: ListView(
+                children: snapshot.data.docs.map((DocumentSnapshot document) {
+              return Card(
                 margin: EdgeInsets.symmetric(vertical: 20, horizontal: 35),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.only(
@@ -64,6 +108,10 @@ class _ListManagementState extends State<ListManagement> {
                       width: double.infinity,
                       decoration: BoxDecoration(
                         color: Colors.grey,
+                        image: DecorationImage(
+                          image: NetworkImage(document["image urls"][0]),
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                     Container(
@@ -75,7 +123,7 @@ class _ListManagementState extends State<ListManagement> {
                             margin: EdgeInsets.symmetric(
                               vertical: 2,
                             ),
-                            child: Text("Property for rent",
+                            child: Text(document.data()['property title'],
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 25,
@@ -87,7 +135,7 @@ class _ListManagementState extends State<ListManagement> {
                               vertical: 2,
                             ),
                             child: Text(
-                              "ruaka, kiambaa",
+                              document["location"],
                               style: TextStyle(
                                 color: Colors.grey,
                                 fontWeight: FontWeight.w400,
@@ -99,7 +147,7 @@ class _ListManagementState extends State<ListManagement> {
                               vertical: 2,
                             ),
                             child: Text(
-                              "Kshs 23000",
+                              "Kshs ${document["rent amount"]} per month",
                               style: TextStyle(
                                 fontSize: 21,
                                 fontWeight: FontWeight.bold,
@@ -125,7 +173,35 @@ class _ListManagementState extends State<ListManagement> {
                                     //     MaterialPageRoute(
                                     //       builder: (context) => RentalFullPage(),
                                     //     ));
-                                    print("gone to full page");
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => RentalFullPage(
+                                            rentAmount: document["rent amount"],
+                                            propertyTitle:
+                                                document["property title"],
+                                            listingType:
+                                                document["listing type"],
+                                            listingSubCategory: document[
+                                                "listing sub category"],
+                                            externalAmenities:
+                                                document["external amenities"],
+                                            internalAmenities:
+                                                document["internal amenities"],
+                                            listingCoordinates:
+                                                document["coords"],
+                                            landArea: document["land area"],
+                                            securityFeatures:
+                                                document["security feature"],
+                                            imageUrls: document["image urls"],
+                                            location: document["location"],
+                                            propertyId: document["property id"],
+                                            bedrooms: document["bedrooms"],
+                                            bathrooms: document["bathrooms"],
+                                            deposit: document["deposit"],
+                                            rentalOwnerId: document["user id"],
+                                          ),
+                                        ));
                                   },
                                   style: ElevatedButton.styleFrom(
                                     elevation: 0,
@@ -145,7 +221,31 @@ class _ListManagementState extends State<ListManagement> {
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => EditListing(),
+                                          builder: (context) => EditListing(
+                                            rentAmount: document["rent amount"],
+                                            propertyTitle:
+                                                document["property title"],
+                                            listingType:
+                                                document["listing type"],
+                                            listingSubCategory: document[
+                                                "listing sub category"],
+                                            externalAmenities:
+                                                document["external amenities"],
+                                            internalAmenities:
+                                                document["internal amenities"],
+                                            listingCoordinates:
+                                                document["coords"],
+                                            landArea: document["land area"],
+                                            securityFeatures:
+                                                document["security feature"],
+                                            imageUrls: document["image urls"],
+                                            location: document["location"],
+                                            propertyId: document["property id"],
+                                            bedrooms: document["bedrooms"],
+                                            bathrooms: document["bathrooms"],
+                                            deposit: document["deposit"],
+                                            rentalOwnerId: document["user id"],
+                                          ),
                                         ));
                                   },
                                   style: ElevatedButton.styleFrom(
@@ -191,7 +291,6 @@ class _ListManagementState extends State<ListManagement> {
                                                         primary: Colors.blue,
                                                       ),
                                                       onPressed: () {
-                                                        print("cancelled!");
                                                         Navigator.of(context)
                                                             .pop();
                                                       },
@@ -205,9 +304,23 @@ class _ListManagementState extends State<ListManagement> {
                                                         primary: Colors.red,
                                                       ),
                                                       onPressed: () {
-                                                        print("deleted!");
+                                                        userCollection
+                                                            .doc(document[
+                                                                "property id"])
+                                                            .delete();
+
                                                         Navigator.of(context)
                                                             .pop();
+                                                        SnackBar snackbar = SnackBar(
+                                                            duration: Duration(
+                                                                milliseconds:
+                                                                    3000),
+                                                            content: Text(
+                                                                "listing has been removed"));
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                                snackbar);
                                                       },
                                                       child: Text("Delete")),
                                                 ],
@@ -229,9 +342,11 @@ class _ListManagementState extends State<ListManagement> {
                     ),
                   ],
                 ),
-              ),
-            ],
+              );
+            }).toList()),
           ),
-        ));
+        );
+      },
+    );
   }
 }

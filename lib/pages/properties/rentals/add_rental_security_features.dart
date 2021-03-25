@@ -112,12 +112,10 @@ class _AddRentalSecurityFeaturesState extends State<AddRentalSecurityFeatures> {
                     activeColor: Colors.blue.withBlue(100),
                     checkFirstElement: false,
                     onItemSelected: (selectedItems) {
-                      print(selectedItems);
                       setState(() {
                         securityFeatures = selectedItems;
                       });
-                      print(
-                          'dataa ${widget.listingSubCategory},${widget.listingCoordinates},${widget.landArea}, ${widget.internalAmenities}');
+                     
                     },
                   ),
                 ),

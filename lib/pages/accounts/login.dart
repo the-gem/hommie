@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hommie/pages/accounts/choose_account_type.dart';
 import 'package:hommie/pages/accounts/otp.dart';
-import 'package:hommie/pages/accounts/reset_password.dart';
 import 'package:hommie/pages/homepage.dart';
 
 class Login extends StatefulWidget {
@@ -28,15 +26,15 @@ class _LoginState extends State<Login> {
                     color: Colors.white,
                     height: 100,
                     margin: EdgeInsets.only(
-                      top: 60,
+                      top: 150,
                     ),
                     child: Center(
                       child: Text(
-                        "Login",
+                        "enter phone number".toUpperCase(),
                         style: TextStyle(
                           color: Colors.blue.withBlue(100),
                           fontWeight: FontWeight.bold,
-                          fontSize: 44,
+                          fontSize: 30,
                         ),
                       ),
                     ),
@@ -47,7 +45,6 @@ class _LoginState extends State<Login> {
                       hintStyle: TextStyle(
                         color: Colors.black,
                       ),
-                      hintText: "712345678",
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(
                           Radius.circular(30),
@@ -58,10 +55,10 @@ class _LoginState extends State<Login> {
                     onChanged: (value) {
                       phoneNumber = value;
                         phone = countryCode + phoneNumber;
-                        print(phone);
-                      print("phone number: $phoneNumber");
+             
                     },
                   ),
+                  SizedBox(height: 30,),
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -72,7 +69,7 @@ class _LoginState extends State<Login> {
                                   )));
                     },
                     child: Card(
-                      margin: EdgeInsets.all(20),
+                      // margin: EdgeInsets.all(20),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(30)),
                       ),
@@ -81,7 +78,7 @@ class _LoginState extends State<Login> {
                         width: MediaQuery.of(context).size.width,
                         height: 50,
                         child: Center(
-                          child: Text("Login".toUpperCase(),
+                          child: Text("continue".toUpperCase(),
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 20,
@@ -89,43 +86,6 @@ class _LoginState extends State<Login> {
                               )),
                         ),
                       ),
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 20),
-                    width: MediaQuery.of(context).size.width,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => ChooseAccountType()));
-                          },
-                          child: Text(
-                            "create account",
-                            style: TextStyle(
-                              fontSize: 18,
-                            ),
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => ResetPassword()));
-                          },
-                          child: Text(
-                            "reset password",
-                            style: TextStyle(
-                              fontSize: 18,
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
                   ),
                 ],

@@ -1,32 +1,35 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class User {
-  final String id;
-  final String email;
-  final String photoUrl;
-  final String username;
-  final String bio;
-  final String displayName;
-  final String phoneNumber;
-  User({
+class MyUser {
+  String id;
+  String email;
+  List profilePicture = [];
+  String username;
+  String phoneNumber;
+  String location;
+  String taxIdNumber;
+  String type;
+  MyUser({
     this.phoneNumber,
-    this.bio,
     this.email,
     this.id,
-    this.photoUrl,
+    this.profilePicture,
     this.username,
-    this.displayName,
+    this.location,
+    this.taxIdNumber,
+    this.type,
   });
 
-  factory User.fromDocument(DocumentSnapshot userDocSnap) {
-    return User(
-      id: userDocSnap['id'],
-      email: userDocSnap['email'],
-      bio: userDocSnap['bio'],
-      photoUrl: userDocSnap['photoUrl'],
-      displayName: userDocSnap['display name'],
-      phoneNumber: userDocSnap['phone number'],
-      
+  factory MyUser.fromDocument(DocumentSnapshot doc) {
+    return MyUser(
+      id: doc["id"],
+      type: doc["type"],
+      username: doc["username"],
+      location: doc["location"],
+      email: doc["email address"],
+      phoneNumber: doc["phone number"],
+      taxIdNumber: doc["tax identification number"],
+      profilePicture: doc["profile picture"],
     );
   }
 }

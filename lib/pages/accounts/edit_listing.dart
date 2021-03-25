@@ -1,12 +1,145 @@
 import 'package:checkbox_grouped/checkbox_grouped.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:hommie/models/rental.dart';
+import 'package:hommie/pages/homepage.dart';
 
 class EditListing extends StatefulWidget {
+  String rentAmount;
+  String propertyTitle;
+  String listingType;
+  String listingSubCategory;
+  List externalAmenities;
+  List internalAmenities;
+  List imageUrls;
+  GeoPoint listingCoordinates;
+  String landArea;
+  List securityFeatures;
+  String location;
+  String propertyId;
+  String bedrooms;
+  String bathrooms;
+  String rentalOwnerId;
+  String deposit;
+  EditListing({
+    this.externalAmenities,
+    this.imageUrls,
+    this.internalAmenities,
+    this.landArea,
+    this.listingCoordinates,
+    this.listingSubCategory,
+    this.listingType,
+    this.propertyTitle,
+    this.rentAmount,
+    this.securityFeatures,
+    this.location,
+    this.propertyId,
+    this.bathrooms,
+    this.bedrooms,
+    this.deposit,
+    this.rentalOwnerId,
+  });
+
   @override
-  _EditListingState createState() => _EditListingState();
+  _EditListingState createState() => _EditListingState(
+      rentAmount: this.rentAmount,
+      propertyTitle: this.propertyTitle,
+      imageUrls: this.imageUrls,
+      landArea: this.landArea,
+      location: this.location,
+      propertyId: this.propertyId,
+      bathrooms: this.bathrooms,
+      bedrooms: this.bedrooms,
+      deposit: this.deposit,
+      rentalOwnerId: this.rentalOwnerId);
 }
 
 class _EditListingState extends State<EditListing> {
+  String rentAmount;
+  String propertyId;
+  String propertyTitle;
+  String listingType;
+  String listingSubCategory;
+  List imageUrls;
+  String landArea;
+  String location;
+  String bedrooms;
+  String bathrooms;
+  String deposit;
+  String rentalOwnerId;
+  _EditListingState({
+    this.imageUrls,
+    this.landArea,
+    this.propertyTitle,
+    this.rentAmount,
+    this.location,
+    this.propertyId,
+    this.bathrooms,
+    this.bedrooms,
+    this.deposit,
+    this.rentalOwnerId,
+  });
+  TextEditingController bedroomsController = TextEditingController();
+  TextEditingController depositController = TextEditingController();
+  TextEditingController bathroomsController = TextEditingController();
+  TextEditingController propertyTitleController = TextEditingController();
+  TextEditingController landAreaController = TextEditingController();
+  TextEditingController rentAmountController = TextEditingController();
+  bool propertyTitleValid = true;
+  @override
+  void initState() {
+    super.initState();
+    getProperty();
+  }
+
+  getProperty() async {
+    rental = Rental();
+    DocumentSnapshot userDocSnap = await usersRef
+        .doc(currentUserId)
+        .collection("properties")
+        .doc(propertyId)
+        .get();
+    rental = Rental.fromDocument(userDocSnap);
+    setState(() {
+      bedroomsController.text = rental.bedrooms;
+      depositController.text = rental.deposit;
+      bathroomsController.text = rental.bathrooms;
+      landAreaController.text = rental.landArea;
+      propertyTitleController.text = rental.propertyTitle;
+      rentAmountController.text = rental.rentAmount;
+    });
+  }
+
+  updateProperty() {
+    setState(() {
+      propertyTitleController.text.length < 3 ||
+              propertyTitleController.text.isEmpty
+          ? propertyTitleValid = false
+          : propertyTitleValid = true;
+      if (propertyTitleValid) {
+        FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUserId)
+            .collection("properties")
+            .doc(widget.propertyId)
+            .update({
+          "rent amount": rentAmountController.text.trim(),
+          "property title": propertyTitleController.text,
+           "external amenities": selectedExternalAmenities.length == 0 ? widget.externalAmenities : selectedExternalAmenities,
+          "internal amenities": selectedInternalAmenities.length == 0 ? widget.internalAmenities : selectedInternalAmenities,
+          "land area": landAreaController.text.trim(),
+          "security feature": selectedSecurityFeatures.length == 0 ? widget.securityFeatures : selectedSecurityFeatures,
+          "bedrooms": bedroomsController.text,
+          "bathrooms": bathroomsController.text,
+          "deposit": depositController.text,
+        }).then((value) {
+          SnackBar snackbar = SnackBar(content: Text('update successful'));
+          ScaffoldMessenger.of(context).showSnackBar(snackbar);
+        });
+      }
+    });
+  }
+
   GroupController securityController = GroupController(
     isMultipleSelection: true,
   );
@@ -16,16 +149,16 @@ class _EditListingState extends State<EditListing> {
   GroupController inAmenitiesController = GroupController(
     isMultipleSelection: true,
   );
-  List securityFeatures = [];
-  List internalAmenities = [];
-  List externalAmenities = [];
-  String propertyTitle;
-  String landArea;
-  String genDescription;
-  String rentAmount;
-  String bedrooms;
-  String bathrooms;
-  String deposit;
+  List selectedSecurityFeatures = [];
+  List selectedInternalAmenities = [];
+  List selectedExternalAmenities = [];
+  // String propertyTitle;
+  // String landArea;
+  // String genDescription;
+  // String rentAmount;
+  // String bedrooms;
+  // String bathrooms;
+  // String deposit;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,7 +169,7 @@ class _EditListingState extends State<EditListing> {
       ),
       bottomSheet: GestureDetector(
         onTap: () {
-          print("saved!");
+          updateProperty();
         },
         child: Container(
             width: MediaQuery.of(context).size.width,
@@ -80,6 +213,7 @@ class _EditListingState extends State<EditListing> {
                   Container(
                     height: 50,
                     child: TextField(
+                      controller: propertyTitleController,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(
@@ -88,10 +222,6 @@ class _EditListingState extends State<EditListing> {
                         ),
                         labelText: 'title/property name',
                       ),
-                      onChanged: (value) {
-                        propertyTitle = value;
-                        print("title: $propertyTitle");
-                      },
                     ),
                   ),
                   SizedBox(
@@ -100,6 +230,7 @@ class _EditListingState extends State<EditListing> {
                   Container(
                     height: 50,
                     child: TextField(
+                      controller: rentAmountController,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
@@ -109,10 +240,6 @@ class _EditListingState extends State<EditListing> {
                         ),
                         labelText: 'rent amount',
                       ),
-                      onChanged: (value) {
-                        rentAmount = value;
-                        print("rent amount: $rentAmount");
-                      },
                     ),
                   ),
                   SizedBox(
@@ -121,6 +248,7 @@ class _EditListingState extends State<EditListing> {
                   Container(
                     height: 50,
                     child: TextField(
+                      controller: depositController,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
@@ -130,10 +258,6 @@ class _EditListingState extends State<EditListing> {
                         ),
                         labelText: 'how much deposit is paid when moving in?',
                       ),
-                      onChanged: (value) {
-                        deposit = value;
-                        print("deposit: $deposit");
-                      },
                     ),
                   ),
                   SizedBox(
@@ -142,6 +266,7 @@ class _EditListingState extends State<EditListing> {
                   Container(
                     height: 50,
                     child: TextField(
+                      controller: bedroomsController,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
@@ -151,10 +276,6 @@ class _EditListingState extends State<EditListing> {
                         ),
                         labelText: 'number of rooms',
                       ),
-                      onChanged: (value) {
-                        bedrooms = value;
-                        print("bedrooms: $bedrooms");
-                      },
                     ),
                   ),
                   SizedBox(
@@ -163,6 +284,7 @@ class _EditListingState extends State<EditListing> {
                   Container(
                     height: 50,
                     child: TextField(
+                      controller: bathroomsController,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
@@ -172,10 +294,6 @@ class _EditListingState extends State<EditListing> {
                         ),
                         labelText: 'bathrooms',
                       ),
-                      onChanged: (value) {
-                        bathrooms = value;
-                        print("bathrooms: $bathrooms");
-                      },
                     ),
                   ),
                   SizedBox(
@@ -184,6 +302,7 @@ class _EditListingState extends State<EditListing> {
                   Container(
                     height: 50,
                     child: TextField(
+                      controller: landAreaController,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
@@ -193,66 +312,10 @@ class _EditListingState extends State<EditListing> {
                         ),
                         labelText: 'land area in square feet',
                       ),
-                      onChanged: (value) {
-                        landArea = value;
-                        print("land: $landArea");
-                      },
                     ),
                   ),
                   SizedBox(
                     height: 15,
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              color: Colors.white,
-              margin: EdgeInsets.only(
-                bottom: 7,
-              ),
-              padding: EdgeInsets.only(
-                top: 15,
-                left: 20,
-                right: 20,
-                bottom: 10,
-              ),
-              width: double.infinity,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    margin: EdgeInsets.only(bottom: 20),
-                    child: Text(
-                      "Add more photos",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.w400,
-                        fontSize: 24,
-                        letterSpacing: 1,
-                      ),
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          print("choose photos");
-                        },
-                        icon: Icon(Icons.add_a_photo, size: 27),
-                        label: Text("Choose photos"),
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          print("upload photos");
-                        },
-                        icon: Icon(Icons.upload_sharp, size: 27),
-                        label: Text("Upload photos"),
-                      ),
-                    ],
                   ),
                 ],
               ),
@@ -308,11 +371,9 @@ class _EditListingState extends State<EditListing> {
                       activeColor: Colors.blue.withBlue(100),
                       checkFirstElement: false,
                       onItemSelected: (selectedItems) {
-                        print(selectedItems);
                         setState(() {
-                          internalAmenities = selectedItems;
+                          selectedInternalAmenities = selectedItems;
                         });
-                        print("internal amenities $internalAmenities");
                       },
                     ),
                   ),
@@ -360,9 +421,8 @@ class _EditListingState extends State<EditListing> {
                       ],
                       checkFirstElement: false,
                       onItemSelected: (selectedItems) {
-                        print(selectedItems);
                         setState(() {
-                          externalAmenities = selectedItems;
+                          selectedExternalAmenities = selectedItems;
                         });
                       },
                     ),
@@ -410,9 +470,8 @@ class _EditListingState extends State<EditListing> {
                       activeColor: Colors.blue.withBlue(100),
                       checkFirstElement: false,
                       onItemSelected: (selectedItems) {
-                        print(selectedItems);
                         setState(() {
-                          securityFeatures = selectedItems;
+                          selectedSecurityFeatures = selectedItems;
                         });
                       },
                     ),

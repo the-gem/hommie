@@ -104,34 +104,25 @@ class _AddRentalInternalAmenitiesState
                     itemsTitle: [
                       'furnished',
                       'internet',
-                      'serviced',
-                      'service charge included',
                       'hot shower',
                       'balcony',
                       'Backup Generator',
-                      'En Suite',
                       'Walk In Closet',
                     ],
                     values: [
                       'furnished',
                       'internet',
-                      'serviced',
-                      'service charge included',
                       'hot shower',
                       'balcony',
                       'Backup Generator',
-                      'En Suite',
                       'Walk In Closet',
                     ],
                     activeColor: Colors.blue.withBlue(100),
                     checkFirstElement: false,
                     onItemSelected: (selectedItems) {
-                      print(selectedItems);
                       setState(() {
                         internalAmenities = selectedItems;
                       });
-                      print("external amenities ${widget.externalAmenities}");
-                      print("internal amenities $internalAmenities");
                     },
                   ),
                 ),

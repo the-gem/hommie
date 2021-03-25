@@ -49,31 +49,33 @@ class _ChooseAccountTypeState extends State<ChooseAccountType> {
                     },
                     child: Card(
                       color: Colors.white,
-                      margin: EdgeInsets.symmetric(horizontal: 50),
+                      margin: EdgeInsets.symmetric(horizontal: 20),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(
                           Radius.circular(30),
                         ),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Container(
-                            height: 80,
-                            width: 130,
-                            color: Colors.transparent,
-                            child: Center(
-                                child: Text(
-                              "LandLord",
-                              style: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 1,
-                              ),
-                            )),
-                          ),
-                          Icon(Icons.arrow_forward_ios),
-                        ],
+                      child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 40),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              height: 80,
+                              color: Colors.transparent,
+                              child: Center(
+                                  child: Text(
+                                "LandLord",
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: 1,
+                                ),
+                              )),
+                            ),
+                            Icon(Icons.arrow_forward_ios),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -94,35 +96,37 @@ class _ChooseAccountTypeState extends State<ChooseAccountType> {
                     },
                     child: Card(
                       color: Colors.white,
-                      margin: EdgeInsets.symmetric(horizontal: 50),
+                      margin: EdgeInsets.symmetric(horizontal: 20),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(
                           Radius.circular(30),
                         ),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Container(
-                            height: 80,
-                            width: 130,
-                            color: Colors.transparent,
-                            child: Center(
-                              child: Text(
-                                "Real Estate Agency",
-                                style: TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: 1,
+                      child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 40),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              height: 80,
+                              color: Colors.transparent,
+                              child: Center(
+                                child: Text(
+                                  "Real Estate Agency",
+                                  style: TextStyle(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: 1,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          InkWell(
-                            onTap: () {},
-                            child: Icon(Icons.arrow_forward_ios),
-                          ),
-                        ],
+                            InkWell(
+                              onTap: () {},
+                              child: Icon(Icons.arrow_forward_ios),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

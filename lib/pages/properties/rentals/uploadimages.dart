@@ -3,7 +3,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:hommie/main.dart';
 import 'package:hommie/pages/homepage.dart';
 import 'package:hommie/widgets/progress_dialog.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
@@ -70,14 +69,12 @@ class _UploadImagesState extends State<UploadImages> {
     // String postalCode = placemark.postalCode;
     // String country = placemark.country;
     String address = name + ', ' + local + ', ' + administrativeArea;
-    print(address);
     setState(() {
       placeLocation = address;
       locality = local;
       county = administrativeArea;
       placeName = name;
     });
-    print("locality: $locality");
   }
 
   Widget buildGridView() {
@@ -85,7 +82,6 @@ class _UploadImagesState extends State<UploadImages> {
       crossAxisCount: 3,
       children: List.generate(images.length, (index) {
         Asset asset = images[index];
-        print(asset.getByteData(quality: 100));
         return Container(
           padding: EdgeInsets.all(1.0),
           height: 100,
@@ -224,21 +220,15 @@ class _UploadImagesState extends State<UploadImages> {
       postImage(imageFile).then((downloadUrl) {
         imageUrls.add(downloadUrl.toString());
         if (imageUrls.length == images.length) {
-          // String documnetID = DateTime.now().millisecondsSinceEpoch.toString();
-         // users => user_id => properties => kiambu county => ruaka => rentals => bedsitters => property_id //=> everything will be generated from this
 
           FirebaseFirestore.instance
               .collection("users")
-              .doc(user.uid)
+              .doc(currentUserId)
               .collection("properties")
-              .doc(county)
-              .collection(locality)
-              .doc(widget.listingType)
-              .collection(widget.listingSubCategory)
               .doc(propertyId)
               .set({
             "property id": propertyId,
-            "user id": user.uid,
+            "user id": currentUserId,
             "rent amount": widget.rentAmount,
             "property title": widget.propertyTitle,
             "listing type": widget.listingType,
@@ -271,7 +261,9 @@ class _UploadImagesState extends State<UploadImages> {
           });
         }
       }).catchError((err) {
-        print(err);
+        SnackBar snackbar =
+                SnackBar(content: Text(err));
+            ScaffoldMessenger.of(context).showSnackBar(snackbar);;
       });
     }
   }
@@ -293,10 +285,6 @@ class _UploadImagesState extends State<UploadImages> {
           selectCircleStrokeColor: "#000000",
         ),
       );
-      print(resultList.length);
-      print((await resultList[0].getThumbByteData(122, 100)));
-      print((await resultList[0].getByteData()));
-      print((await resultList[0].metadata));
     } on Exception catch (e) {
       error = e.toString();
     }
@@ -310,11 +298,10 @@ class _UploadImagesState extends State<UploadImages> {
 
   Future<dynamic> postImage(Asset imageFile) async {
     String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    Reference reference = FirebaseStorage.instance.ref().child(fileName);
+    Reference reference = FirebaseStorage.instance.ref().child("$propertyId/$fileName");
     UploadTask uploadTask =
         reference.putData((await imageFile.getByteData()).buffer.asUint8List());
     String imagesurl = await (await uploadTask).ref.getDownloadURL();
-    print(imagesurl);
     return imagesurl;
   }
 }

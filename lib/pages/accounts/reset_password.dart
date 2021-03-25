@@ -1,8 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:hommie/main.dart';
 import 'package:hommie/pages/accounts/login.dart';
-import 'package:hommie/pages/homepage.dart';
 
 class ResetPassword extends StatefulWidget {
   static const String idscreen = "restpassword";
@@ -53,7 +51,6 @@ class _ResetPasswordState extends State<ResetPassword> {
                       ),
                       onChanged: (value) {
                         email = value;
-                        print("landlord email: $email");
                       },
                     ),
                   ),
@@ -121,7 +118,6 @@ class _ResetPasswordState extends State<ResetPassword> {
       SnackBar snackbar = SnackBar(
           duration: Duration(milliseconds: 3000), content: Text(e.toString()));
       ScaffoldMessenger.of(context).showSnackBar(snackbar);
-      print(e);
     }
   }
 }

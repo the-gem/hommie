@@ -18,37 +18,34 @@ class AddRentalBasicDetails extends StatefulWidget {
 
 class _AddRentalBasicDetailsState extends State<AddRentalBasicDetails> {
   addRentalAmenities() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AddRentalExternalAmenities(
-          listingSubCategory: widget.listingSubCategory,
-          listingType: widget.listingType,
-          listingCoordinates: widget.listingCoordinates,
-          genDescription: genDescription,
-          landArea: landArea,
-          propertyTitle: propertyTitle,
-          rentAmount: rentAmount,
-          bedrooms: bedrooms,
-          bathrooms: bathrooms,
-          deposit: deposit,
+    
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AddRentalExternalAmenities(
+            listingSubCategory: widget.listingSubCategory,
+            listingType: widget.listingType,
+            listingCoordinates: widget.listingCoordinates,
+            genDescription: genDescription,
+            landArea: landArea,
+            propertyTitle: propertyTitle,
+            rentAmount: rentAmount,
+            bedrooms: bedrooms,
+            bathrooms: bathrooms,
+            deposit: deposit,
+          ),
         ),
-      ),
-    );
+      );
 
-    print(propertyTitle);
-    print(genDescription);
-    print(landArea);
-    print('basic details: ${widget.listingCoordinates}');
   }
 
-  String propertyTitle;
-  String landArea;
-  String genDescription;
-  String rentAmount;
-  String bedrooms;
-  String bathrooms;
-  String deposit;
+  String propertyTitle = "";
+  String landArea = "";
+  String genDescription = "";
+  String rentAmount = "";
+  String bedrooms = "";
+  String bathrooms = "";
+  String deposit = "";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,11 +80,11 @@ class _AddRentalBasicDetailsState extends State<AddRentalBasicDetails> {
                       Radius.circular(30),
                     ),
                   ),
+                  errorText: propertyTitle.isEmpty || propertyTitle == null ? "please enter property title" : null,
                   labelText: 'title/property name',
                 ),
                 onChanged: (value) {
                   propertyTitle = value;
-                  print("title: $propertyTitle");
                 },
               ),
               SizedBox(
@@ -101,11 +98,11 @@ class _AddRentalBasicDetailsState extends State<AddRentalBasicDetails> {
                       Radius.circular(30),
                     ),
                   ),
+                 errorText: rentAmount.isEmpty || rentAmount == null ? "please enter some amount" : null,
                   labelText: 'rent amount',
                 ),
                 onChanged: (value) {
                   rentAmount = value;
-                  print("rent amount: $rentAmount");
                 },
               ),
               SizedBox(
@@ -123,7 +120,6 @@ class _AddRentalBasicDetailsState extends State<AddRentalBasicDetails> {
                 ),
                 onChanged: (value) {
                   deposit = value;
-                  print("deposit: $deposit");
                 },
               ),
               SizedBox(
@@ -137,11 +133,11 @@ class _AddRentalBasicDetailsState extends State<AddRentalBasicDetails> {
                       Radius.circular(30),
                     ),
                   ),
+                  errorText: bedrooms.isEmpty || bedrooms == null ? "no rooms available?": null,
                   labelText: 'number of rooms',
                 ),
                 onChanged: (value) {
                   bedrooms = value;
-                  print("bedrooms: $bedrooms");
                 },
               ),
               SizedBox(
@@ -155,11 +151,11 @@ class _AddRentalBasicDetailsState extends State<AddRentalBasicDetails> {
                       Radius.circular(30),
                     ),
                   ),
+                  errorText: bathrooms.isEmpty || bathrooms == null ? "no bathrooms available?": null,
                   labelText: 'bathrooms',
                 ),
                 onChanged: (value) {
                   bathrooms = value;
-                  print("bathrooms: $bathrooms");
                 },
               ),
               SizedBox(
@@ -177,7 +173,6 @@ class _AddRentalBasicDetailsState extends State<AddRentalBasicDetails> {
                 ),
                 onChanged: (value) {
                   landArea = value;
-                  print("land: $landArea");
                 },
               ),
               SizedBox(

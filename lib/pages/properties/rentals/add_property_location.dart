@@ -78,17 +78,12 @@ class _AddPropertyLocationState extends State<AddPropertyLocation> {
         position: tappedPoint,
         draggable: true,
         onDragEnd: (dragEndPosition) {
-          print(dragEndPosition);
-          // setState(() {});
         },
       ));
     });
-    print(tappedPoint);
     setState(() {
       placeCoords = tappedPoint;
     });
-    print('the coordinates are: $placeCoords');
-    print("${widget.listingSubCategory}");
   }
 
   @override
@@ -106,7 +101,8 @@ class _AddPropertyLocationState extends State<AddPropertyLocation> {
       floatingActionButton: FloatingActionButton.extended(
         heroTag: "add listing",
         onPressed: () {
-          Navigator.push(
+          if (placeCoords != null) {
+            Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => AddRentalBasicDetails(
@@ -116,6 +112,13 @@ class _AddPropertyLocationState extends State<AddPropertyLocation> {
               ),
             ),
           );
+          } else {
+             SnackBar snackbar = SnackBar(
+               duration: Duration(seconds: 5),
+               content: Text('we could not get your location, choose a location on map or check your internet connection'),);
+          ScaffoldMessenger.of(context).showSnackBar(snackbar);
+          }
+          
         },
         tooltip: 'add listing',
         // child: Icon(Icons.add),
@@ -198,55 +201,6 @@ class _AddPropertyLocationState extends State<AddPropertyLocation> {
               ),
             ),
           ),
-          // Column(
-          //   children: [
-          //     Text("Where is the property located?"),
-          //     DropdownButton<String>(
-          //       value: dropdownValue,
-          //       icon: Icon(Icons.arrow_downward),
-          //       iconSize: 24,
-          //       elevation: 16,
-          //       style: TextStyle(color: Colors.deepPurple),
-          //       underline: Container(
-          //         height: 2,
-          //         color: Colors.deepPurpleAccent,
-          //       ),
-          //       onChanged: (String newValue) {
-          //         setState(() {
-          //           dropdownValue = newValue;
-          //         });
-          //       },
-          //       items: <String>[
-          //         'Nairobi',
-          //         'Uasin Gishu',
-          //         'Nakuru',
-          //         'Bungoma',
-          //         'Kakamega',
-          //         'Kericho',
-          //         'Baringo',
-          //         'Mombasa',
-          //         'Kwale',
-          //       ].map<DropdownMenuItem<String>>((String value) {
-          //         return DropdownMenuItem<String>(
-          //           value: value,
-          //           child: Text(value),
-          //         );
-          //       }).toList(),
-          //     ),
-          //     TextField(
-          //       obscureText: true,
-          //       decoration: InputDecoration(
-          //         border: OutlineInputBorder(),
-          //         labelText: 'town e.g Nairobi',
-          //       ),
-          //     ),
-          //     TextField(
-          //       obscureText: true,
-          //       decoration: InputDecoration(
-          //         border: OutlineInputBorder(),
-          //         labelText: 'Area e.g Westlands',
-          //       ),
-          //     ),
         ],
       ),
     );

@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hommie/models/user.dart';
+import 'package:hommie/pages/accounts/create_user_in_firestore.dart';
 import 'package:hommie/pages/homepage.dart';
 import 'package:pinput/pin_put/pin_put.dart';
 
@@ -35,17 +37,15 @@ class _OtpScreenState extends State<OtpScreen> {
   String _verificationCode;
   BoxDecoration get _pinPutDecoration {
     return BoxDecoration(
-      border: Border.all(color: Colors.deepPurpleAccent),
+      border: Border.all(color: Colors.blue.withBlue(100)),
       borderRadius: BorderRadius.circular(15.0),
     );
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     verifyPhone();
-    print(widget.phoneNumber);
   }
 
   String myPin;
@@ -135,7 +135,7 @@ class _OtpScreenState extends State<OtpScreen> {
                           margin: const EdgeInsets.all(20.0),
                           padding: const EdgeInsets.all(20.0),
                           child: PinPut(
-                            fieldsCount: 5,
+                            fieldsCount: 6,
                             focusNode: _pinPutFocusNode,
                             controller: _pinPutController,
                             submittedFieldDecoration:
@@ -147,7 +147,7 @@ class _OtpScreenState extends State<OtpScreen> {
                                 _pinPutDecoration.copyWith(
                               borderRadius: BorderRadius.circular(5.0),
                               border: Border.all(
-                                color: Colors.deepPurpleAccent.withOpacity(.5),
+                                color: Colors.blue.withBlue(100),
                               ),
                             ),
                             onSubmit: (pin) {
@@ -176,69 +176,52 @@ class _OtpScreenState extends State<OtpScreen> {
       // Sign the user in (or link) with the credential
       await auth.signInWithCredential(phoneAuthCredential).then((value) async {
         if (value.user != null) {
-          print("user logged in");
-          FirebaseFirestore.instance
-              .collection('users')
-              .doc(auth.currentUser.uid)
-              .get()
-              .then((DocumentSnapshot documentSnapshot) {
-            if (documentSnapshot.exists) {
-              setState(() {
-                isLoggedIn = true;
-              });
-              Navigator.pushNamedAndRemoveUntil(
-                  context, HomePage.idscreen, (route) => false);
-            } else {
-              FirebaseFirestore.instance
-                  .collection("users")
-                  .doc(auth.currentUser.uid)
-                  .collection(widget.accountType)
-                  .doc(widget.name)
-                  .set({
-                "id": auth.currentUser.uid,
-                "type": widget.accountType,
-                "username": widget.name,
-                "location": widget.location,
-                "email address": widget.email,
-                "phone number": widget.phoneNumber,
-                "tax identification number": widget.idNumber,
-                "profile picture": widget.profilePic,
-              }).then((value) {
-                setState(() {
-                  isLoggedIn = true;
-                });
-                Navigator.pushNamedAndRemoveUntil(
-                    context, HomePage.idscreen, (route) => false);
-              });
-            }
+          createUserInFirestore();
+          setState(() {
+            isLoggedIn = true;
+            currentUserId = auth.currentUser.uid;
           });
+          SnackBar snackbar = SnackBar(content: Text('sign in successful'));
+          ScaffoldMessenger.of(context).showSnackBar(snackbar);
+          Navigator.pushNamedAndRemoveUntil(
+              context, HomePage.idscreen, (route) => false);
         }
       });
     } catch (e) {
       FocusScope.of(context).unfocus();
       SnackBar snackbar = SnackBar(
-          duration: Duration(milliseconds: 3000),
-          content: Text("invalid otp code"));
+          duration: Duration(milliseconds: 3000), content: Text(e.toString()));
       ScaffoldMessenger.of(context).showSnackBar(snackbar);
     }
   }
 
   verifyPhone() async {
     await auth.verifyPhoneNumber(
-      phoneNumber: "+254${widget.phone}",
+      phoneNumber: widget.phoneNumber,
       verificationCompleted: (PhoneAuthCredential credential) async {
         // Sign the user in (or link) with the auto-generated credential
         await auth.signInWithCredential(credential).then((value) async {
           if (value.user != null) {
-            print("user logged in");
+            createUserInFirestore();
+            setState(() {
+              isLoggedIn = true;
+              currentUserId = auth.currentUser.uid;
+            });
+            SnackBar snackbar = SnackBar(content: Text('sign in successful'));
+            ScaffoldMessenger.of(context).showSnackBar(snackbar);
+            Navigator.pushNamedAndRemoveUntil(
+                context, HomePage.idscreen, (route) => false);
           }
         });
       },
       verificationFailed: (FirebaseAuthException e) {
         if (e.code == 'invalid-phone-number') {
-          print('The provided phone number is not valid.');
+          SnackBar snackbar = SnackBar(
+              content: Text('The provided phone number is not valid.'));
+          ScaffoldMessenger.of(context).showSnackBar(snackbar);
         }
-        print(e.message);
+        SnackBar snackbar = SnackBar(content: Text(e.message));
+        ScaffoldMessenger.of(context).showSnackBar(snackbar);
         // Handle other errors
       },
       codeSent: (String verificationId, int resendToken) async {
@@ -253,5 +236,22 @@ class _OtpScreenState extends State<OtpScreen> {
         });
       },
     );
+  }
+
+  createUserInFirestore() async {
+    currentUser = MyUser();
+    final DocumentSnapshot documentSnapshot =
+        await usersRef.doc(auth.currentUser.uid).get();
+    if (!documentSnapshot.exists) {
+      SnackBar snackbar = SnackBar(content: Text('please create a new acount'));
+      ScaffoldMessenger.of(context).showSnackBar(snackbar);
+      await Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => CreateUserInFirestore(
+                    phoneNumber: widget.phoneNumber,
+                  )));
+    }
+    currentUser = MyUser.fromDocument(documentSnapshot);
   }
 }

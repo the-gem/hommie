@@ -18,7 +18,6 @@ User user = FirebaseAuth.instance.currentUser;
 
 class MyApp extends StatelessWidget {
   // Create the initialization Future outside of `build`:
-  final Future<FirebaseApp> _initialization = Firebase.initializeApp();
 
   @override
   Widget build(BuildContext context) {

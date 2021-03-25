@@ -56,7 +56,6 @@ class _AgencyRegistrationState extends State<AgencyRegistration> {
                       ),
                       onChanged: (value) {
                         agencyName = value;
-                        print("agency: $agencyName");
                       },
                     ),
                   ),
@@ -74,13 +73,11 @@ class _AgencyRegistrationState extends State<AgencyRegistration> {
                         ),
                         labelText: 'phone number',
                         prefixText: countryCode,
-                         hintText: '712345678',
                       ),
                       onChanged: (value) {
                         phoneNumber = value;
                         phone = countryCode + phoneNumber;
-                        print(phone);
-                        print("phone number: $phoneNumber");
+               
                       },
                     ),
                   ),
@@ -100,7 +97,7 @@ class _AgencyRegistrationState extends State<AgencyRegistration> {
                       ),
                       onChanged: (value) {
                         taxIdNumber = value;
-                        print("tax id: $taxIdNumber");
+                     
                       },
                     ),
                   ),

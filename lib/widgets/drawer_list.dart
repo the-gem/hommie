@@ -1,10 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:hommie/main.dart';
 import 'package:hommie/pages/accounts/list_management.dart';
 import 'package:hommie/pages/accounts/login.dart';
 import 'package:hommie/pages/accounts/user_profile.dart';
-import 'package:hommie/pages/general_pages/feedback.dart';
+import 'package:hommie/pages/general_pages/feedback_page.dart';
 import 'package:hommie/pages/homepage.dart';
 
 class DrawerList extends StatefulWidget {
@@ -20,6 +19,10 @@ class _DrawerListState extends State<DrawerList> {
     return ListView(
       children: <Widget>[
         DrawerHeader(
+          padding: EdgeInsets.only(
+            bottom: 20,
+            left: 20,
+          ),
           child: GestureDetector(
             onTap: () {
               isLoggedIn
@@ -28,19 +31,23 @@ class _DrawerListState extends State<DrawerList> {
                   : Navigator.pushNamedAndRemoveUntil(
                       context, Login.idscreen, (route) => false);
             },
-            child: isLoggedIn
-                ? Text(user.email)
-                : Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Text('sign in or create account'),
-                  ),
           ),
           decoration: BoxDecoration(
-            color: Colors.blue,
+            backgroundBlendMode: BlendMode.multiply,
+            color: Colors.grey[200],
+            image: isLoggedIn
+                ? DecorationImage(
+                    image: NetworkImage(
+                      currentUser.profilePicture[0],
+                    ),
+                  )
+                : DecorationImage(
+                    image: NetworkImage(""),
+                  ),
           ),
         ),
         ListTile(
-          title: Text('Your Profile'),
+          title: Text('Your Profile'.toUpperCase()),
           onTap: () {
             isLoggedIn
                 ? Navigator.push(context,
@@ -50,7 +57,7 @@ class _DrawerListState extends State<DrawerList> {
           },
         ),
         ListTile(
-          title: Text('Listing Management'),
+          title: Text('Listing Management'.toUpperCase()),
           onTap: () {
             isLoggedIn
                 ? Navigator.push(context,
@@ -60,18 +67,26 @@ class _DrawerListState extends State<DrawerList> {
           },
         ),
         ListTile(
-          title: Text('give feedback'),
+          title: Text('give feedback'.toUpperCase()),
           onTap: () {
             Navigator.push(context,
                 MaterialPageRoute(builder: (context) => FeedbackPage()));
           },
         ),
-        isLoggedIn ? ListTile(
-          title: Text('LogOut'.toUpperCase()),
-          onTap: () {
-            logoutUser();
-          },
-        ): Container(),
+        isLoggedIn
+            ? ListTile(
+                title: Text('LogOut'.toUpperCase()),
+                onTap: () {
+                  logoutUser();
+                },
+              )
+            : ListTile(
+                title: Text('create account'.toUpperCase()),
+                onTap: () {
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, Login.idscreen, (route) => false);
+                },
+              ),
       ],
     );
   }
