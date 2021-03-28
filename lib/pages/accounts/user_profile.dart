@@ -1,9 +1,14 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hommie/models/user.dart';
 import 'package:hommie/pages/homepage.dart';
 import 'package:hommie/widgets/progress_dialog.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 
 class UserProfile extends StatefulWidget {
@@ -18,9 +23,8 @@ class _UserProfileState extends State<UserProfile> {
   bool fullNameValid = true;
   bool officeValid = true;
   bool emailValid = true;
-  List<Asset> images = [];
-  List<String> imageUrls = <String>[];
-  String _error = 'No Error Dectected';
+  File _image;
+  String profilePictureUrl = "";
   bool isUploading = false;
 
   @override
@@ -79,51 +83,6 @@ class _UserProfileState extends State<UserProfile> {
     });
   }
 
-  Widget buildGridView() {
-    Asset asset = images[0];
-    return Container(
-      height: 200,
-      width: 100,
-      child: CircleAvatar(
-        backgroundColor: Colors.white,
-        radius: 120,
-        child: AssetThumb(
-          asset: asset,
-          width: 200,
-          height: 200,
-        ),
-      ),
-    );
-  }
-
-  Future<void> loadAssets() async {
-    List<Asset> resultList = [];
-    String error = 'No Error Dectected';
-    try {
-      resultList = await MultiImagePicker.pickImages(
-        maxImages: 1,
-        enableCamera: true,
-        selectedAssets: images,
-        cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
-        materialOptions: MaterialOptions(
-          actionBarColor: "#abcdef",
-          actionBarTitle: "Upload Image",
-          allViewTitle: "All Photos",
-          useDetailsView: false,
-          selectCircleStrokeColor: "#000000",
-        ),
-      );
-    } on Exception catch (e) {
-      error = e.toString();
-    }
-
-    if (!mounted) return;
-    setState(() {
-      images = resultList;
-      _error = error;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     Stream documentStream = FirebaseFirestore.instance
@@ -179,8 +138,12 @@ class _UserProfileState extends State<UserProfile> {
             child: ListView(
               // crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                images.isNotEmpty
-                    ? buildGridView()
+                _image != null
+                    ? Container(
+                        height: 150,
+                        width: 100,
+                        child: Image.file(_image),
+                      )
                     : currentUser.profilePicture.isNotEmpty ||
                             currentUser.profilePicture != null
                         ? Container(
@@ -191,7 +154,7 @@ class _UserProfileState extends State<UserProfile> {
                               color: Colors.black,
                               image: DecorationImage(
                                 image: NetworkImage(
-                                  currentUser.profilePicture[0],
+                                  currentUser.profilePicture,
                                 ),
                               ),
                             ),
@@ -199,17 +162,28 @@ class _UserProfileState extends State<UserProfile> {
                         : Container(
                             height: 150,
                             width: 100,
-                            child: CircleAvatar(
-                              child: Image.network(
-                                  currentUser.profilePicture[0],
-                                  fit: BoxFit.contain),
-                            ),
+                            child: currentUser.profilePicture.isNotEmpty ||
+                                    currentUser.profilePicture != null
+                                ? CircleAvatar(
+                                    child: Image.network(
+                                        currentUser.profilePicture,
+                                        fit: BoxFit.contain),
+                                  )
+                                : CircleAvatar(
+                                    backgroundColor: Colors.grey[300],
+                                    child: Center(
+                                      child: Text("No Picture",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                          )),
+                                    ),
+                                  ),
                           ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
                     GestureDetector(
-                      onTap: loadAssets,
+                      onTap: getImage,
                       child: Card(
                         color: Colors.grey[100],
                         shape: RoundedRectangleBorder(
@@ -240,9 +214,16 @@ class _UserProfileState extends State<UserProfile> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        if (images.isNotEmpty || images.length > 0) {
+                        if (_image != null) {
                           SnackBar snackbar = SnackBar(
                               content: Text('Please wait, we are uploading'));
+
+                          ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                          uploadImages(context);
+                        } else {
+                          SnackBar snackbar = SnackBar(
+                              content:
+                                  Text('Please choose an image to upload'));
 
                           ScaffoldMessenger.of(context).showSnackBar(snackbar);
                           uploadImages(context);
@@ -377,6 +358,20 @@ class _UserProfileState extends State<UserProfile> {
     );
   }
 
+  final picker = ImagePicker();
+
+  Future getImage() async {
+    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+      } else {
+        print('No image selected.');
+      }
+    });
+  }
+
   void uploadImages(context) {
     showDialog(
         context: context,
@@ -386,39 +381,37 @@ class _UserProfileState extends State<UserProfile> {
             message: "updating profile...",
           );
         });
-    for (var imageFile in images) {
-      postImage(imageFile).then((downloadUrl) {
-        imageUrls.add(downloadUrl.toString());
-        if (imageUrls.length == images.length) {
-          FirebaseFirestore.instance
-              .collection("users")
-              .doc(currentUserId)
-              .update({
-            "profile picture": imageUrls,
-          }).then((_) {
-            SnackBar snackbar =
-                SnackBar(content: Text('Uploaded Successfully'));
-            ScaffoldMessenger.of(context).showSnackBar(snackbar);
-
-            setState(() {
-              images = [];
-              imageUrls = [];
-            });
-          });
-        }
-      }).catchError((err) {
-        SnackBar snackbar = SnackBar(content: Text(err));
+    postImage(_image).then((_) {
+      FirebaseFirestore.instance.collection("users").doc(currentUserId).update({
+        "profile picture": profilePictureUrl,
+      }).then((_) {
+        SnackBar snackbar = SnackBar(content: Text('Uploaded Successfully'));
         ScaffoldMessenger.of(context).showSnackBar(snackbar);
+
+        setState(() {
+          profilePictureUrl = "";
+          _image = null;
+        });
+        Navigator.of(context).pop();
       });
-    }
+    }).catchError((err) {
+      SnackBar snackbar = SnackBar(content: Text(err));
+      ScaffoldMessenger.of(context).showSnackBar(snackbar);
+    });
   }
 
-  Future<dynamic> postImage(Asset imageFile) async {
+  Future postImage(File imageFile) async {
     String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    Reference reference = FirebaseStorage.instance.ref().child(fileName);
-    UploadTask uploadTask =
-        reference.putData((await imageFile.getByteData()).buffer.asUint8List());
-    String imagesurl = await (await uploadTask).ref.getDownloadURL();
-    return imagesurl;
+    Uint8List bytes = await imageFile.readAsBytesSync();
+    ByteData byteData = ByteData.view(bytes.buffer);
+    List<int> imageData = byteData.buffer.asUint8List();
+    Reference ref = FirebaseStorage.instance
+        .ref()
+        .child(fileName); // To be aligned with the latest firebase API(4.0)
+    UploadTask uploadTask = ref.putData(imageData);
+
+    String downloadUrl = await (await uploadTask).ref.getDownloadURL();
+    profilePictureUrl = downloadUrl;
+    return profilePictureUrl;
   }
 }

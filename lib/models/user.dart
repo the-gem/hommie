@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class MyUser {
   String id;
   String email;
-  List profilePicture = [];
+  String profilePicture = "";
   String username;
   String phoneNumber;
   String location;

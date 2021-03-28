@@ -547,7 +547,7 @@ class _RentalFullPageState extends State<RentalFullPage> {
       userEmail = rentalOwner.email;
       ownerUsername = rentalOwner.username;
       userPhone = rentalOwner.phoneNumber;
-      userProfilePicture = rentalOwner.profilePicture[0];
+      userProfilePicture = rentalOwner.profilePicture;
     });
   }
 }

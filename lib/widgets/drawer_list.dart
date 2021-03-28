@@ -20,38 +20,38 @@ class _DrawerListState extends State<DrawerList> {
     return ListView(
       children: <Widget>[
         DrawerHeader(
-          padding: EdgeInsets.all(0),
-          child: Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              width: double.infinity,
-              height: 40,
-              color: Colors.blue.withBlue(150),
-              child: Center(
-                child: Text("Account balance $accountBal".toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      letterSpacing: 1,
-                    )),
+            padding: EdgeInsets.all(0),
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                width: double.infinity,
+                height: 40,
+                color: Colors.blue.withBlue(150),
+                child: Center(
+                  child: Text("Account balance $accountBal".toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 1,
+                      )),
+                ),
               ),
             ),
-          ),
-          decoration: BoxDecoration(
-            backgroundBlendMode: BlendMode.multiply,
-            color: Colors.grey[200],
-            image: isLoggedIn && currentUser.profilePicture.isNotEmpty
-                ? DecorationImage(
-                    image: NetworkImage(
-                      currentUser.profilePicture[0],
-                    ),
-                  )
-                : DecorationImage(
-                    image: NetworkImage(""),
-                  ),
-          ),
-        ),
+            decoration: isLoggedIn &&
+                    (currentUser.profilePicture != null ||
+                        currentUser.profilePicture.isNotEmpty)
+                ? BoxDecoration(
+                    backgroundBlendMode: BlendMode.multiply,
+                    color: Colors.grey[200],
+                    image: DecorationImage(
+                      image: NetworkImage(
+                        currentUser.profilePicture,
+                      ),
+                    ))
+                : BoxDecoration(
+                    color: Colors.grey[200],
+                  )),
         ListTile(
           title: Text('Rentals'.toUpperCase()),
           onTap: () {

@@ -321,7 +321,7 @@ class _PlotFullPageState extends State<PlotFullPage> {
       userEmail = plotOwner.email;
       ownerUsername = plotOwner.username;
       userPhone = plotOwner.phoneNumber;
-      userProfilePicture = plotOwner.profilePicture[0];
+      userProfilePicture = plotOwner.profilePicture;
     });
   }
 }

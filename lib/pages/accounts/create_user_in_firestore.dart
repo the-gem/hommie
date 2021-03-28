@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hommie/models/user.dart';
 import 'package:hommie/pages/homepage.dart';
 
-class  CreateUserInFirestore extends StatefulWidget {
+class CreateUserInFirestore extends StatefulWidget {
   final String phoneNumber;
   CreateUserInFirestore({this.phoneNumber});
   @override
@@ -16,7 +16,7 @@ class _CreateUserInFirestoreState extends State<CreateUserInFirestore> {
   String idNumber = "";
   String location = "";
   String email = "";
-  List<String> profilePic = [];
+  String profilePic;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -173,9 +173,7 @@ class _CreateUserInFirestoreState extends State<CreateUserInFirestore> {
   }
 
   createUser() async {
-    await usersRef
-        .doc(auth.currentUser.uid)
-        .set({
+    await usersRef.doc(auth.currentUser.uid).set({
       "id": auth.currentUser.uid,
       "type": chooseAccountDropdown,
       "username": name,
@@ -194,9 +192,7 @@ class _CreateUserInFirestoreState extends State<CreateUserInFirestore> {
   }
 
   getUser() async {
-    DocumentSnapshot documentSnapshot = await usersRef
-        .doc(currentUserId)
-        .get();
+    DocumentSnapshot documentSnapshot = await usersRef.doc(currentUserId).get();
     currentUser = MyUser.fromDocument(documentSnapshot);
     Navigator.pushNamedAndRemoveUntil(
         context, HomePage.idscreen, (route) => false);
