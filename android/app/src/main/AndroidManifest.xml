@@ -8,8 +8,8 @@
     <uses-permission android:name="android.permission.CAMERA" />
 
    <application
-        android:label="hommie"
-        android:icon="@mipmap/ic_launcher">
+        android:label="Hommie"
+        android:icon="@mipmap/launcher_icon">
         <meta-data android:name="com.google.android.geo.API_KEY"
                android:value="AIzaSyDxQQv5NCAQC-MY3Cs-XVx9kjvp7_M9zJc"/>
         <activity

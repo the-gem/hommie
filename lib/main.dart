@@ -7,6 +7,7 @@ import 'package:hommie/pages/accounts/landlord_setup.dart';
 import 'package:hommie/pages/accounts/login.dart';
 import 'package:hommie/pages/accounts/reset_password.dart';
 import 'package:hommie/pages/homepage.dart';
+import 'package:hommie/pages/properties/plots/plots_home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
           Login.idscreen: (context) => Login(),
           ChooseAccountType.idscreen: (context) => ChooseAccountType(),
           ResetPassword.idscreen: (context) => ResetPassword(),
+          PLotsHomePage.idscreen: (context) => PLotsHomePage(),
         });
   }
 }

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hommie/models/rental.dart';
 import 'package:hommie/pages/homepage.dart';
 
-class EditListing extends StatefulWidget {
+class EditRentalListing extends StatefulWidget {
   String rentAmount;
   String propertyTitle;
   String listingType;
@@ -16,12 +16,12 @@ class EditListing extends StatefulWidget {
   String landArea;
   List securityFeatures;
   String location;
-  String propertyId;
+  String rentalId;
   String bedrooms;
   String bathrooms;
   String rentalOwnerId;
   String deposit;
-  EditListing({
+  EditRentalListing({
     this.externalAmenities,
     this.imageUrls,
     this.internalAmenities,
@@ -33,7 +33,7 @@ class EditListing extends StatefulWidget {
     this.rentAmount,
     this.securityFeatures,
     this.location,
-    this.propertyId,
+    this.rentalId,
     this.bathrooms,
     this.bedrooms,
     this.deposit,
@@ -41,22 +41,22 @@ class EditListing extends StatefulWidget {
   });
 
   @override
-  _EditListingState createState() => _EditListingState(
+  _EditRentalListingState createState() => _EditRentalListingState(
       rentAmount: this.rentAmount,
       propertyTitle: this.propertyTitle,
       imageUrls: this.imageUrls,
       landArea: this.landArea,
       location: this.location,
-      propertyId: this.propertyId,
+      rentalId: this.rentalId,
       bathrooms: this.bathrooms,
       bedrooms: this.bedrooms,
       deposit: this.deposit,
       rentalOwnerId: this.rentalOwnerId);
 }
 
-class _EditListingState extends State<EditListing> {
+class _EditRentalListingState extends State<EditRentalListing> {
   String rentAmount;
-  String propertyId;
+  String rentalId;
   String propertyTitle;
   String listingType;
   String listingSubCategory;
@@ -67,13 +67,13 @@ class _EditListingState extends State<EditListing> {
   String bathrooms;
   String deposit;
   String rentalOwnerId;
-  _EditListingState({
+  _EditRentalListingState({
     this.imageUrls,
     this.landArea,
     this.propertyTitle,
     this.rentAmount,
     this.location,
-    this.propertyId,
+    this.rentalId,
     this.bathrooms,
     this.bedrooms,
     this.deposit,
@@ -96,18 +96,18 @@ class _EditListingState extends State<EditListing> {
     rental = Rental();
     DocumentSnapshot userDocSnap = await usersRef
         .doc(currentUserId)
-        .collection("properties")
-        .doc(propertyId)
+        .collection("rentals")
+        .doc(rentalId)
         .get();
     rental = Rental.fromDocument(userDocSnap);
-    setState(() {
+   
       bedroomsController.text = rental.bedrooms;
       depositController.text = rental.deposit;
       bathroomsController.text = rental.bathrooms;
       landAreaController.text = rental.landArea;
       propertyTitleController.text = rental.propertyTitle;
       rentAmountController.text = rental.rentAmount;
-    });
+
   }
 
   updateProperty() {
@@ -121,7 +121,7 @@ class _EditListingState extends State<EditListing> {
             .collection('users')
             .doc(currentUserId)
             .collection("properties")
-            .doc(widget.propertyId)
+            .doc(widget.rentalId)
             .update({
           "rent amount": rentAmountController.text.trim(),
           "property title": propertyTitleController.text,

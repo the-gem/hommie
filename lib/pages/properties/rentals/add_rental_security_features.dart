@@ -1,7 +1,7 @@
 import 'package:checkbox_grouped/checkbox_grouped.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:hommie/pages/properties/rentals/uploadimages.dart';
+import 'package:hommie/pages/properties/rentals/upload_rental_images.dart';
 
 class AddRentalSecurityFeatures extends StatefulWidget {
   String listingType;
@@ -40,7 +40,7 @@ class _AddRentalSecurityFeaturesState extends State<AddRentalSecurityFeatures> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => UploadImages(
+        builder: (context) => UploadRentalImages(
           landArea: widget.landArea,
           externalAmenities: widget.externalAmenities,
           internalAmenities: widget.internalAmenities,

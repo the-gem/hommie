@@ -29,6 +29,12 @@ class _UserProfileState extends State<UserProfile> {
     getUser();
   }
 
+  @override
+  void dispose() {
+    getUser();
+    super.dispose();
+  }
+
   getUser() async {
     currentUser = MyUser();
     DocumentSnapshot userDocSnap =
@@ -78,16 +84,15 @@ class _UserProfileState extends State<UserProfile> {
     return Container(
       height: 200,
       width: 100,
-   
-        child: CircleAvatar(
-          backgroundColor: Colors.white,
-          radius: 120,
-          child: AssetThumb(
-            asset: asset,
-            width: 200,
-            height: 200,
-          ),
+      child: CircleAvatar(
+        backgroundColor: Colors.white,
+        radius: 120,
+        child: AssetThumb(
+          asset: asset,
+          width: 200,
+          height: 200,
         ),
+      ),
     );
   }
 
@@ -124,8 +129,6 @@ class _UserProfileState extends State<UserProfile> {
     Stream documentStream = FirebaseFirestore.instance
         .collection('users')
         .doc(currentUserId)
-        .collection("personal infor")
-        .doc(auth.currentUser.phoneNumber)
         .snapshots();
 
     return StreamBuilder<DocumentSnapshot>(
@@ -185,15 +188,13 @@ class _UserProfileState extends State<UserProfile> {
                             width: 100,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                             color: Colors.black,
+                              color: Colors.black,
                               image: DecorationImage(
                                 image: NetworkImage(
                                   currentUser.profilePicture[0],
                                 ),
-                                
                               ),
                             ),
-                  
                           )
                         : Container(
                             height: 150,
@@ -303,7 +304,6 @@ class _UserProfileState extends State<UserProfile> {
                       errorText:
                           fullNameValid ? null : "full name is not valid",
                     ),
-  
                   ),
                 ),
                 SizedBox(
@@ -407,9 +407,8 @@ class _UserProfileState extends State<UserProfile> {
           });
         }
       }).catchError((err) {
-        SnackBar snackbar =
-                SnackBar(content: Text(err));
-            ScaffoldMessenger.of(context).showSnackBar(snackbar);
+        SnackBar snackbar = SnackBar(content: Text(err));
+        ScaffoldMessenger.of(context).showSnackBar(snackbar);
       });
     }
   }

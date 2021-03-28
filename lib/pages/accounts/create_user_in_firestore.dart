@@ -12,10 +12,10 @@ class  CreateUserInFirestore extends StatefulWidget {
 
 class _CreateUserInFirestoreState extends State<CreateUserInFirestore> {
   String chooseAccountDropdown = 'landlord';
-  String name;
-  String idNumber;
-  String location;
-  String email;
+  String name = "";
+  String idNumber = "";
+  String location = "";
+  String email = "";
   List<String> profilePic = [];
   @override
   Widget build(BuildContext context) {

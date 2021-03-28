@@ -202,7 +202,7 @@ class _RentalFullPageState extends State<RentalFullPage> {
                       style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
-                          color: Colors.blue.withBlue(100)),
+                          color: Colors.blue.withBlue(100),),
                     ),
                   ),
                   Container(

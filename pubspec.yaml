@@ -2,9 +2,9 @@ name: hommie
 version: 1.0.0+1
 publish_to: none
 description: real estate social platform.
-environment: 
-  sdk: '>=2.7.0 <3.0.0'
-dependencies: 
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+dependencies:
   cupertino_icons: ^1.0.2
   flutter_svg: ^0.21.0-nullsafety.0
   carousel_pro: ^1.0.0
@@ -20,12 +20,13 @@ dependencies:
   multi_image_picker: ^4.6.5
   animations: ^2.0.0
   pinput: ^1.2.0
-  flutter: 
+  flutter_launcher_icons: ^0.9.0
+  flutter:
     sdk: flutter
-dev_dependencies: 
-  flutter_test: 
+dev_dependencies:
+  flutter_test:
     sdk: flutter
-flutter: 
-  # assets: 
-    # - assets/images/
+flutter:
+  # assets:
+  # - assets/images/
   uses-material-design: true

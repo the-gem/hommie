@@ -8,51 +8,44 @@ import 'package:hommie/widgets/progress_dialog.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:uuid/uuid.dart';
 
-class UploadImages extends StatefulWidget {
-  List securityFeatures;
-  String listingType;
-  String listingSubCategory;
+class UploadPlotImages extends StatefulWidget {
   LatLng listingCoordinates;
-  String propertyTitle;
+  String plotTitle;
   String landArea;
   String genDescription;
-  List externalAmenities = [];
-  List internalAmenities = [];
-  String rentAmount;
-  String bedrooms;
-  String bathrooms;
-  String deposit;
-  UploadImages(
-      {this.securityFeatures,
-      this.externalAmenities,
-      this.internalAmenities,
-      this.listingSubCategory,
-      this.listingType,
-      this.listingCoordinates,
-      this.landArea,
-      this.propertyTitle,
-      this.genDescription,
-      this.rentAmount,
-      this.bathrooms,
-      this.bedrooms,
-      this.deposit});
+  String price;
+
+  UploadPlotImages({
+    this.listingCoordinates,
+    this.landArea,
+    this.plotTitle,
+    this.genDescription,
+    this.price,
+
+  });
   @override
-  _UploadImagesState createState() => new _UploadImagesState();
+  _UploadPlotImagesState createState() => new _UploadPlotImagesState();
 }
 
-class _UploadImagesState extends State<UploadImages> {
+class _UploadPlotImagesState extends State<UploadPlotImages> {
+  int newAccountBal;
   List<Asset> images = [];
   List<String> imageUrls = <String>[];
   String _error = 'No Error Dectected';
   bool isUploading = false;
-
+  bool enoughAccountBal = false;
   @override
   void initState() {
     super.initState();
+    if (accountBal >= 50) {
+      enoughAccountBal = true;
+    } else if (accountBal <= 49) {
+      enoughAccountBal = false;
+    }
     getLocation();
   }
 
-  String propertyId = Uuid().v4();
+  String plotid = Uuid().v4();
   String county;
   String locality;
   String placeLocation;
@@ -174,7 +167,7 @@ class _UploadImagesState extends State<UploadImages> {
 
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(snackbar);
-                            uploadImages(context);
+                            uploadPlotImages(context);
                           }
                         },
                         icon: Icon(
@@ -207,64 +200,63 @@ class _UploadImagesState extends State<UploadImages> {
     );
   }
 
-  void uploadImages(context) {
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return ProgressDialog(
-            message: "uploading your property...",
-          );
-        });
-    for (var imageFile in images) {
-      postImage(imageFile).then((downloadUrl) {
-        imageUrls.add(downloadUrl.toString());
-        if (imageUrls.length == images.length) {
-
-          FirebaseFirestore.instance
-              .collection("users")
-              .doc(currentUserId)
-              .collection("properties")
-              .doc(propertyId)
-              .set({
-            "property id": propertyId,
-            "user id": currentUserId,
-            "rent amount": widget.rentAmount,
-            "property title": widget.propertyTitle,
-            "listing type": widget.listingType,
-            "listing sub category": widget.listingSubCategory,
-            "external amenities": widget.externalAmenities,
-            "internal amenities": widget.internalAmenities,
-            "image urls": imageUrls,
-            "coords": GeoPoint(
-              widget.listingCoordinates.latitude,
-              widget.listingCoordinates.longitude,
-            ),
-            "land area": widget.landArea,
-            "security feature": widget.securityFeatures,
-            "location": placeLocation,
-            "bedrooms": widget.bedrooms,
-            "bathrooms": widget.bathrooms,
-            "deposit": widget.deposit,
-          }).then((_) {
-            SnackBar snackbar =
-                SnackBar(content: Text('Uploaded Successfully'));
-            ScaffoldMessenger.of(context).showSnackBar(snackbar);
-
-            setState(() {
-              images = [];
-              imageUrls = [];
-              propertyId = Uuid().v4();
-            });
-            Navigator.pushNamedAndRemoveUntil(
-                context, HomePage.idscreen, (route) => false);
-          });
-        }
-      }).catchError((err) {
-        SnackBar snackbar =
-                SnackBar(content: Text(err));
-            ScaffoldMessenger.of(context).showSnackBar(snackbar);;
+  void uploadPlotImages(context) {
+    if (enoughAccountBal = true) {
+      setState(() {
+        newAccountBal = accountBal - 50;
+        accountBal = newAccountBal;
+        print("new account balance is $accountBal");
       });
+      showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return ProgressDialog(
+              message: "uploading your property...",
+            );
+          });
+      for (var imageFile in images) {
+        postImage(imageFile).then((downloadUrl) {
+          imageUrls.add(downloadUrl.toString());
+          if (imageUrls.length == images.length) {
+            FirebaseFirestore.instance
+                .collection("users")
+                .doc(currentUserId)
+                .collection("plots")
+                .doc(plotid)
+                .set({
+              "plot id": plotid,
+              "user id": currentUserId,
+              "price": widget.price,
+              "plot title": widget.plotTitle,
+              "image urls": imageUrls,
+              "coords": GeoPoint(
+                widget.listingCoordinates.latitude,
+                widget.listingCoordinates.longitude,
+              ),
+              "general description": widget.genDescription,
+              "land area": widget.landArea,
+              "location": placeLocation,
+            }).then((_) {
+              SnackBar snackbar =
+                  SnackBar(content: Text('Uploaded Successfully'));
+              ScaffoldMessenger.of(context).showSnackBar(snackbar);
+
+              setState(() {
+                images = [];
+                imageUrls = [];
+                plotid = Uuid().v4();
+              });
+              Navigator.pushNamedAndRemoveUntil(
+                  context, HomePage.idscreen, (route) => false);
+            });
+          }
+        }).catchError((err) {
+          SnackBar snackbar = SnackBar(content: Text(err));
+          ScaffoldMessenger.of(context).showSnackBar(snackbar);
+          ;
+        });
+      }
     }
   }
 
@@ -298,7 +290,8 @@ class _UploadImagesState extends State<UploadImages> {
 
   Future<dynamic> postImage(Asset imageFile) async {
     String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    Reference reference = FirebaseStorage.instance.ref().child("$propertyId/$fileName");
+    Reference reference =
+        FirebaseStorage.instance.ref().child("$plotid/$fileName");
     UploadTask uploadTask =
         reference.putData((await imageFile.getByteData()).buffer.asUint8List());
     String imagesurl = await (await uploadTask).ref.getDownloadURL();

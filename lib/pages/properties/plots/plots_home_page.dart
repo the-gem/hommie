@@ -4,48 +4,34 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hommie/models/plot.dart';
-import 'package:hommie/models/rental.dart';
 import 'package:hommie/models/user.dart';
 import 'package:hommie/pages/accounts/login.dart';
-import 'package:hommie/pages/properties/rentals/create_listing.dart';
-import 'package:hommie/pages/properties/rentals/rental_full_page.dart';
+import 'package:hommie/pages/properties/plots/add_plot_location.dart';
+import 'package:hommie/pages/properties/plots/plot_full_page.dart';
 import 'package:hommie/widgets/drawer_list.dart';
+import 'package:hommie/pages/homepage.dart';
 
-int accountBal = 50;
-MyUser currentUser;
-Rental rental;
-Plot plot;
-final rentalsTimelineRef = FirebaseFirestore.instance;
-final CollectionReference usersRef =
-    FirebaseFirestore.instance.collection('users');
-final DateTime timestamp = DateTime.now();
-FirebaseFirestore firestore = FirebaseFirestore.instance;
-bool isLoggedIn = false;
-String currentUserId = '';
-FirebaseAuth auth = FirebaseAuth.instance;
-String countryCode = "+254";
-
-class HomePage extends StatefulWidget {
-  static const String idscreen = "homescreen";
+class PLotsHomePage extends StatefulWidget {
+  static const String idscreen = "plotshomescreen";
   @override
-  _HomePageState createState() => _HomePageState();
+  _PLotsHomePageState createState() => _PLotsHomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _PLotsHomePageState extends State<PLotsHomePage> {
   GoogleMapController mapController;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<Marker> allMarkers = [];
-  List<Rental> rentals = [];
+  List<Plot> plots = [];
   double mapBottomPadding = 0;
 
-  void _onScroll() {
-    if (_pageController.page.toInt() != prevPage) {
-      prevPage = _pageController.page.toInt();
-      if (allMarkers != null) {
-        moveCamera();
-      }
-    }
-  }
+  // void _onScroll() {
+  //   if (_pageController.page.toInt() != prevPage) {
+  //     prevPage = _pageController.page.toInt();
+  //     if (allMarkers != null) {
+  //       moveCamera();
+  //     }
+  //   }
+  // }
 
   getUser() async {
     usersRef
@@ -70,9 +56,9 @@ class _HomePageState extends State<HomePage> {
     });
     super.initState();
   }
-
   @override
-  void dispose() {
+  void dispose() { 
+    
     super.dispose();
   }
 
@@ -84,52 +70,45 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     CollectionReference listings =
-        FirebaseFirestore.instance.collection('rentals');
-    listings.snapshots().listen((QuerySnapshot rentalsSnapshot) {
-      List<Rental> rentalsTimelinePosts = rentalsSnapshot.docs
-          .map((rentalsSnapshot) => Rental.fromDocument(rentalsSnapshot))
+        FirebaseFirestore.instance.collection('plots');
+    listings.snapshots().listen((QuerySnapshot plotsSnapshot) {
+      List<Plot> plotsTimelinePosts = plotsSnapshot.docs
+          .map((plotsSnapshot) => Plot.fromDocument(plotsSnapshot))
           .toList();
-
-      this.rentals = rentalsTimelinePosts;
-      rentals.isEmpty || rentals == null
-          ? mapBottomPadding = 0
-          : mapBottomPadding = 120;
-      rentals.forEach((element) {
-        allMarkers.add(Marker(
-            markerId: MarkerId(element.propertyId),
-            draggable: false,
-            infoWindow: InfoWindow(
-                title: element.propertyTitle,
-                snippet: element.rentAmount,
-                onTap: () {
-                  // moveCamera();
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => RentalFullPage(
-                          rentAmount: element.rentAmount,
-                          propertyTitle: element.propertyTitle,
-                          listingType: element.listingType,
-                          listingSubCategory: element.listingSubCategory,
-                          externalAmenities: element.externalAmenities,
-                          internalAmenities: element.internalAmenities,
-                          listingCoordinates: element.listingCoordinates,
-                          landArea: element.landArea,
-                          securityFeatures: element.securityFeatures,
-                          imageUrls: element.imageUrls,
-                          location: element.location,
-                          propertyId: element.propertyId,
-                          bedrooms: element.bedrooms,
-                          bathrooms: element.bathrooms,
-                          deposit: element.deposit,
-                          rentalOwnerId: element.userId,
-                        ),
-                      ));
-                }),
-            position: LatLng(element.listingCoordinates.latitude,
-                element.listingCoordinates.longitude)));
-        this.allMarkers = allMarkers;
-
+     
+        this.plots = plotsTimelinePosts;
+        plots.isEmpty || plots == null
+            ? mapBottomPadding = 0
+            : mapBottomPadding = 120;
+        plots.forEach((element) {
+          allMarkers.add(Marker(
+              markerId: MarkerId(element.plotId),
+              draggable: false,
+              infoWindow: InfoWindow(
+                  title: element.plotTitle,
+                  snippet: element.price,
+                  onTap: () {
+                    // moveCamera();
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PlotFullPage(
+                            price: element.price,
+                            plotTitle: element.plotTitle,
+                            listingCoordinates: element.listingCoordinates,
+                            landArea: element.landArea,
+                            imageUrls: element.imageUrls,
+                            location: element.location,
+                            plotId: element.plotId,
+                            plotOwnerId: element.userId,
+                            genDescription: element.genDescription,
+                          ),
+                        ));
+                  }),
+              position: LatLng(element.listingCoordinates.latitude,
+                  element.listingCoordinates.longitude)));
+          this.allMarkers = allMarkers;
+      
         _pageController = PageController(initialPage: 1, viewportFraction: 0.8);
         // ..addListener(_onScroll);
       });
@@ -169,9 +148,9 @@ class _HomePageState extends State<HomePage> {
                       width: MediaQuery.of(context).size.width,
                       child: PageView.builder(
                         controller: _pageController,
-                        itemCount: rentals.length,
+                        itemCount: plots.length,
                         itemBuilder: (BuildContext context, int index) {
-                          return _rentalsList(index);
+                          return _plotsList(index);
                         },
                       )),
                 ),
@@ -181,20 +160,20 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       FloatingActionButton.extended(
                         backgroundColor: Colors.blue.withBlue(100),
-                        heroTag: "add rental listing",
+                        heroTag: "add plot listing",
                         onPressed: () {
                           isLoggedIn
                               ? Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => CreateListing(),
+                                    builder: (context) => AddPlotLocation(),
                                   ),
                                 )
                               : Navigator.pushNamedAndRemoveUntil(
                                   context, Login.idscreen, (route) => false);
                         },
                         label: Text(
-                          'Add Rental Listing',
+                          'Add Plot Listing',
                           style: TextStyle(fontSize: 12),
                         ),
                         icon: Icon(Icons.add, size: 15),
@@ -272,10 +251,8 @@ class _HomePageState extends State<HomePage> {
       CameraUpdate.newCameraPosition(
         CameraPosition(
           target: LatLng(
-              rentals[_pageController.page.toInt()]
-                  .listingCoordinates
-                  ?.latitude,
-              rentals[_pageController.page.toInt()]
+              plots[_pageController.page.toInt()].listingCoordinates?.latitude,
+              plots[_pageController.page.toInt()]
                   .listingCoordinates
                   ?.longitude),
           zoom: 17,
@@ -286,7 +263,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  _rentalsList(index) {
+  _plotsList(index) {
     return AnimatedBuilder(
         animation: _pageController,
         builder: (BuildContext context, Widget widget) {
@@ -306,27 +283,20 @@ class _HomePageState extends State<HomePage> {
         },
         child: InkWell(
           onTap: () {
-            // showRentalFullPage();
+            // showplotFullPage();
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => RentalFullPage(
-                    rentAmount: rentals[index].rentAmount,
-                    propertyTitle: rentals[index].propertyTitle,
-                    listingType: rentals[index].listingType,
-                    listingSubCategory: rentals[index].listingSubCategory,
-                    externalAmenities: rentals[index].externalAmenities,
-                    internalAmenities: rentals[index].internalAmenities,
-                    listingCoordinates: rentals[index].listingCoordinates,
-                    landArea: rentals[index].landArea,
-                    securityFeatures: rentals[index].securityFeatures,
-                    imageUrls: rentals[index].imageUrls,
-                    location: rentals[index].location,
-                    propertyId: rentals[index].propertyId,
-                    bedrooms: rentals[index].bedrooms,
-                    bathrooms: rentals[index].bathrooms,
-                    deposit: rentals[index].deposit,
-                    rentalOwnerId: rentals[index].userId,
+                  builder: (context) => PlotFullPage(
+                    price: plots[index].price,
+                    plotTitle: plots[index].plotTitle,
+                    listingCoordinates: plots[index].listingCoordinates,
+                    landArea: plots[index].landArea,
+                    imageUrls: plots[index].imageUrls,
+                    location: plots[index].location,
+                    plotId: plots[index].plotId,
+                    plotOwnerId: plots[index].userId,
+                    genDescription: plots[index].genDescription,
                   ),
                 ));
           },
@@ -356,15 +326,15 @@ class _HomePageState extends State<HomePage> {
                     child: Row(
                       children: [
                         Container(
-                          height: double.infinity,
-                          width: 90,
+                          height: 250,
+                          width: 110,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(10),
                               bottomLeft: Radius.circular(10),
                             ),
                             image: DecorationImage(
-                              image: NetworkImage(rentals[index].imageUrls[0]),
+                              image: NetworkImage(plots[index].imageUrls[0]),
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -377,36 +347,14 @@ class _HomePageState extends State<HomePage> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             Text(
-                              "${rentals[index].propertyTitle}",
+                              "${plots[index].plotTitle}".toUpperCase(),
                               style: TextStyle(
                                 color: Colors.blue.withBlue(150),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Text("${rentals[index].listingSubCategory}"),
-                            Text("kshs ${rentals[index].rentAmount}/month"),
-                            Row(
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(Icons.king_bed),
-                                    SizedBox(width: 3),
-                                    Text("1"),
-                                  ],
-                                ),
-                                SizedBox(width: 10),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.bathtub,
-                                      size: 20,
-                                    ),
-                                    SizedBox(width: 3),
-                                    Text("1"),
-                                  ],
-                                ),
-                              ],
-                            ),
+                            Text("kshs ${plots[index].price}"),
+                            Text("${plots[index].landArea} acres"),
                           ],
                         ),
                       ],

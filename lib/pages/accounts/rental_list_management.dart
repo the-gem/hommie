@@ -1,27 +1,27 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:hommie/pages/accounts/edit_listing.dart';
+import 'package:hommie/pages/accounts/edit_rental_listing.dart';
 import 'package:hommie/pages/accounts/login.dart';
 import 'package:hommie/pages/homepage.dart';
 import 'package:hommie/pages/properties/rentals/create_listing.dart';
 import 'package:hommie/pages/properties/rentals/rental_full_page.dart';
 
-class ListManagement extends StatefulWidget {
+class RentalListManagement extends StatefulWidget {
   @override
-  _ListManagementState createState() => _ListManagementState();
+  _RentalListManagementState createState() => _RentalListManagementState();
 }
 
-class _ListManagementState extends State<ListManagement> {
+class _RentalListManagementState extends State<RentalListManagement> {
   CollectionReference userCollection = FirebaseFirestore.instance
       .collection('users')
       .doc(currentUserId)
-      .collection('properties');
+      .collection('rentals');
   @override
   Widget build(BuildContext context) {
     Stream collectionStream = FirebaseFirestore.instance
         .collection('users')
         .doc(currentUserId)
-        .collection('properties')
+        .collection('rentals')
         .snapshots();
 
     return StreamBuilder<QuerySnapshot>(
@@ -59,10 +59,7 @@ class _ListManagementState extends State<ListManagement> {
         }
 
         return Scaffold(
-          appBar: AppBar(
-            elevation: 0,
-            title: Text("your listings".toUpperCase()),
-          ),
+
           bottomSheet: GestureDetector(
             onTap: () {
               isLoggedIn
@@ -80,7 +77,7 @@ class _ListManagementState extends State<ListManagement> {
                 height: 50,
                 color: Colors.blue.withBlue(150),
                 child: Center(
-                  child: Text("Add Listing",
+                  child: Text("Add Rental Listing",
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -125,7 +122,7 @@ class _ListManagementState extends State<ListManagement> {
                             ),
                             child: Text(document.data()['property title'],
                                 style: TextStyle(
-                                  color: Colors.black,
+                                  color: Colors.teal,
                                   fontSize: 25,
                                   fontWeight: FontWeight.bold,
                                 )),
@@ -221,7 +218,7 @@ class _ListManagementState extends State<ListManagement> {
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => EditListing(
+                                          builder: (context) => EditRentalListing(
                                             rentAmount: document["rent amount"],
                                             propertyTitle:
                                                 document["property title"],
@@ -240,7 +237,7 @@ class _ListManagementState extends State<ListManagement> {
                                                 document["security feature"],
                                             imageUrls: document["image urls"],
                                             location: document["location"],
-                                            propertyId: document["property id"],
+                                            rentalId: document["property id"],
                                             bedrooms: document["bedrooms"],
                                             bathrooms: document["bathrooms"],
                                             deposit: document["deposit"],

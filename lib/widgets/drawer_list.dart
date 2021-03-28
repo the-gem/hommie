@@ -1,10 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:hommie/pages/accounts/list_management.dart';
+import 'package:hommie/pages/accounts/all_list_management.dart';
 import 'package:hommie/pages/accounts/login.dart';
 import 'package:hommie/pages/accounts/user_profile.dart';
 import 'package:hommie/pages/general_pages/feedback_page.dart';
 import 'package:hommie/pages/homepage.dart';
+import 'package:hommie/pages/properties/plots/plots_home_page.dart';
 
 class DrawerList extends StatefulWidget {
   @override
@@ -19,23 +20,28 @@ class _DrawerListState extends State<DrawerList> {
     return ListView(
       children: <Widget>[
         DrawerHeader(
-          padding: EdgeInsets.only(
-            bottom: 20,
-            left: 20,
-          ),
-          child: GestureDetector(
-            onTap: () {
-              isLoggedIn
-                  ? Navigator.pushNamedAndRemoveUntil(
-                      context, HomePage.idscreen, (route) => false)
-                  : Navigator.pushNamedAndRemoveUntil(
-                      context, Login.idscreen, (route) => false);
-            },
+          padding: EdgeInsets.all(0),
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              width: double.infinity,
+              height: 40,
+              color: Colors.blue.withBlue(150),
+              child: Center(
+                child: Text("Account balance $accountBal".toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 1,
+                    )),
+              ),
+            ),
           ),
           decoration: BoxDecoration(
             backgroundBlendMode: BlendMode.multiply,
             color: Colors.grey[200],
-            image: isLoggedIn
+            image: isLoggedIn && currentUser.profilePicture.isNotEmpty
                 ? DecorationImage(
                     image: NetworkImage(
                       currentUser.profilePicture[0],
@@ -45,6 +51,20 @@ class _DrawerListState extends State<DrawerList> {
                     image: NetworkImage(""),
                   ),
           ),
+        ),
+        ListTile(
+          title: Text('Rentals'.toUpperCase()),
+          onTap: () {
+            Navigator.pushNamedAndRemoveUntil(
+                context, HomePage.idscreen, (route) => false);
+          },
+        ),
+        ListTile(
+          title: Text('Plots for sale'.toUpperCase()),
+          onTap: () {
+            Navigator.pushNamedAndRemoveUntil(
+                context, PLotsHomePage.idscreen, (route) => false);
+          },
         ),
         ListTile(
           title: Text('Your Profile'.toUpperCase()),
@@ -81,7 +101,7 @@ class _DrawerListState extends State<DrawerList> {
                 },
               )
             : ListTile(
-                title: Text('create account'.toUpperCase()),
+                title: Text('create account/log in'.toUpperCase()),
                 onTap: () {
                   Navigator.pushNamedAndRemoveUntil(
                       context, Login.idscreen, (route) => false);
