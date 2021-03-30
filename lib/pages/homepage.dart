@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:hommie/models/account.dart';
 import 'package:hommie/models/plot.dart';
 import 'package:hommie/models/rental.dart';
 import 'package:hommie/models/user.dart';
@@ -11,7 +12,8 @@ import 'package:hommie/pages/properties/rentals/create_listing.dart';
 import 'package:hommie/pages/properties/rentals/rental_full_page.dart';
 import 'package:hommie/widgets/drawer_list.dart';
 
-int accountBal = 50;
+int accountBal = 0;
+Account account;
 MyUser currentUser;
 Rental rental;
 Plot plot;
@@ -23,7 +25,7 @@ FirebaseFirestore firestore = FirebaseFirestore.instance;
 bool isLoggedIn = false;
 String currentUserId = '';
 FirebaseAuth auth = FirebaseAuth.instance;
-String countryCode = "+254";
+String countryCode = "254";
 
 class HomePage extends StatefulWidget {
   static const String idscreen = "homescreen";
@@ -123,6 +125,7 @@ class _HomePageState extends State<HomePage> {
                           bathrooms: element.bathrooms,
                           deposit: element.deposit,
                           rentalOwnerId: element.userId,
+                          genDescription: element.genDescription,
                         ),
                       ));
                 }),
@@ -327,6 +330,7 @@ class _HomePageState extends State<HomePage> {
                     bathrooms: rentals[index].bathrooms,
                     deposit: rentals[index].deposit,
                     rentalOwnerId: rentals[index].userId,
+                    genDescription: rentals[index].genDescription,
                   ),
                 ));
           },
@@ -357,7 +361,7 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         Container(
                           height: double.infinity,
-                          width: 90,
+                          width: 105,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(10),
@@ -376,14 +380,18 @@ class _HomePageState extends State<HomePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            Text(
-                              "${rentals[index].propertyTitle}",
-                              style: TextStyle(
-                                color: Colors.blue.withBlue(150),
-                                fontWeight: FontWeight.bold,
+                            Container(
+                              width: 140,
+                              child: Text(
+                                rentals[index].propertyTitle,
+                                style: TextStyle(
+                                  color: Colors.blue.withBlue(150),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            Text("${rentals[index].listingSubCategory}"),
+                            Text(rentals[index].listingSubCategory),
                             Text("kshs ${rentals[index].rentAmount}/month"),
                             Row(
                               children: [

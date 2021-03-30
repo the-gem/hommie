@@ -27,6 +27,7 @@ class _AddPlotBasicDetailsState extends State<AddPlotBasicDetails> {
           genDescription: genDescription,
           landArea: landArea,
           plotTitle: plotTitle,
+          price: price.toUpperCase(),
         ),
       ),
     );
@@ -43,7 +44,7 @@ class _AddPlotBasicDetailsState extends State<AddPlotBasicDetails> {
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 20),
+          padding: EdgeInsets.only(left: 20,right:20,bottom:25,),
           child: Column(
             children: [
               Container(

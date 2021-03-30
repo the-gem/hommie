@@ -1,6 +1,7 @@
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hommie/models/user.dart';
 import 'package:hommie/pages/homepage.dart';
@@ -81,6 +82,9 @@ class _PlotFullPageState extends State<PlotFullPage> {
   String ownerUsername = "";
   String userPhone = "";
   String userProfilePicture = "";
+  TextOverflow descriptionOverflow = TextOverflow.ellipsis;
+  int maxlines = 2;
+  String helperText = "read more";
   @override
   void initState() {
     super.initState();
@@ -227,30 +231,48 @@ class _PlotFullPageState extends State<PlotFullPage> {
                 "general description".toUpperCase(),
                 style: TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.w400,
+                  fontWeight: FontWeight.w500,
                 ),
                 maxLines: 2,
               ),
             ),
-            widget.genDescription.isNotEmpty ?
-            Container(
-              width: double.infinity,
-              color: Colors.white,
-              margin: EdgeInsets.only(bottom: 10),
-              padding: EdgeInsets.symmetric(
-                vertical: 20,
-                horizontal: 15,
-              ),
-              alignment: Alignment.topLeft,
-              child: Text(
-                widget.genDescription,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w400,
-                ),
-                maxLines: 2,
-              ),
-            ) : Container(),
+            widget.genDescription.isNotEmpty
+                ? InkWell(
+                    onTap: () {
+                      if (maxlines == 2) {
+                        setState(() {
+                          descriptionOverflow = TextOverflow.visible;
+                          maxlines = null;
+                        });
+                      } else if (maxlines == null) {
+                        setState(() {
+                          descriptionOverflow = TextOverflow.ellipsis;
+                          maxlines = 2;
+                          helperText = "";
+                        });
+                      }
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      color: Colors.white,
+                      margin: EdgeInsets.only(bottom: 10),
+                      padding: EdgeInsets.symmetric(
+                        vertical: 20,
+                        horizontal: 15,
+                      ),
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                        widget.genDescription,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        // maxLines: maxlines,
+                        // overflow: descriptionOverflow,
+                      ),
+                    ),
+                  )
+                : Container(),
             Container(
               width: 200,
               color: Colors.white,

@@ -4,6 +4,8 @@ import 'package:hommie/models/user.dart';
 import 'package:hommie/pages/homepage.dart';
 
 class CreateUserInFirestore extends StatefulWidget {
+  static const String idscreen = "createUser";
+
   final String phoneNumber;
   CreateUserInFirestore({this.phoneNumber});
   @override
@@ -16,7 +18,7 @@ class _CreateUserInFirestoreState extends State<CreateUserInFirestore> {
   String idNumber = "";
   String location = "";
   String email = "";
-  String profilePic;
+  String profilePic = "";
   @override
   Widget build(BuildContext context) {
     return Scaffold(

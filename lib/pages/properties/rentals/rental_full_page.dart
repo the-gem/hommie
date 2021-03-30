@@ -22,6 +22,7 @@ class RentalFullPage extends StatefulWidget {
   final String bathrooms;
   final String rentalOwnerId;
   final String deposit;
+  final String genDescription;
   RentalFullPage({
     this.externalAmenities,
     this.imageUrls,
@@ -39,6 +40,7 @@ class RentalFullPage extends StatefulWidget {
     this.bedrooms,
     this.deposit,
     this.rentalOwnerId,
+    this.genDescription,
   });
   @override
   _RentalFullPageState createState() => _RentalFullPageState(
@@ -171,7 +173,6 @@ class _RentalFullPageState extends State<RentalFullPage> {
                 : Center(
                     child: CircularProgressIndicator(),
                   ),
-
             Container(
               width: double.infinity,
               color: Colors.white,
@@ -200,9 +201,10 @@ class _RentalFullPageState extends State<RentalFullPage> {
                     child: Text(
                       "Kshs ${widget.rentAmount}/month",
                       style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue.withBlue(100),),
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue.withBlue(100),
+                      ),
                     ),
                   ),
                   Container(
@@ -365,7 +367,6 @@ class _RentalFullPageState extends State<RentalFullPage> {
                 ),
               ],
             )),
-
             Container(
               margin: EdgeInsets.all(5),
               child: Column(
@@ -476,6 +477,27 @@ class _RentalFullPageState extends State<RentalFullPage> {
                 ],
               ),
             ),
+            widget.genDescription.isNotEmpty
+                ? Container(
+                    width: double.infinity,
+                    color: Colors.white,
+                    margin: EdgeInsets.only(bottom: 10),
+                    padding: EdgeInsets.symmetric(
+                      vertical: 20,
+                      horizontal: 15,
+                    ),
+                    alignment: Alignment.topLeft,
+                    child: Text(
+                      widget.genDescription,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      // maxLines: maxlines,
+                      // overflow: descriptionOverflow,
+                    ),
+                  )
+                : Container(),
             Container(
               width: double.infinity,
               color: Colors.white,
@@ -494,7 +516,7 @@ class _RentalFullPageState extends State<RentalFullPage> {
                       child: CircleAvatar(
                         radius: 55,
                         backgroundImage: NetworkImage(
-                         userProfilePicture,
+                          userProfilePicture,
                         ),
                         backgroundColor: Colors.grey[200],
                       ),

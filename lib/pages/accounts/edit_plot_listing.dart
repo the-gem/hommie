@@ -93,7 +93,7 @@ class _EditPlotListingState extends State<EditPlotListing> {
             .collection("plots")
             .doc(widget.plotId)
             .update({
-          "price": priceController.text.trim(),
+          "price": priceController.text.trim().toUpperCase(),
           "plot title": plotTitleController.text,
           "land area": landAreaController.text.trim(),
           "general description": genDescriptionController.text,

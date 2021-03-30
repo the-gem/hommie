@@ -3,7 +3,10 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:hommie/models/account.dart';
 import 'package:hommie/pages/homepage.dart';
+import 'package:hommie/pages/payments/payment.dart';
+import 'package:hommie/pages/properties/plots/plots_home_page.dart';
 import 'package:hommie/widgets/progress_dialog.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:uuid/uuid.dart';
@@ -21,7 +24,6 @@ class UploadPlotImages extends StatefulWidget {
     this.plotTitle,
     this.genDescription,
     this.price,
-
   });
   @override
   _UploadPlotImagesState createState() => new _UploadPlotImagesState();
@@ -37,12 +39,8 @@ class _UploadPlotImagesState extends State<UploadPlotImages> {
   @override
   void initState() {
     super.initState();
-    if (accountBal >= 50) {
-      enoughAccountBal = true;
-    } else if (accountBal <= 49) {
-      enoughAccountBal = false;
-    }
     getLocation();
+    getAccountBalance();
   }
 
   String plotid = Uuid().v4();
@@ -70,6 +68,26 @@ class _UploadPlotImagesState extends State<UploadPlotImages> {
     });
   }
 
+  Stream<DocumentSnapshot> getAccountBalance() {
+    DocumentReference stream = FirebaseFirestore.instance
+        .collection("payments")
+        .doc(currentUserId)
+        .collection("balance")
+        .doc("account");
+    stream.snapshots().listen((DocumentSnapshot element) {
+      account = Account.fromDocument(element);
+      print('account ballance is: ${account.balance}');
+      if (account.balance >= 49) {
+        setState(() {
+          enoughAccountBal = true;
+        });
+      } else if (account.balance <= 48) {
+        enoughAccountBal = false;
+      }
+      return account;
+    });
+  }
+
   Widget buildGridView() {
     return GridView.count(
       crossAxisCount: 3,
@@ -93,7 +111,7 @@ class _UploadPlotImagesState extends State<UploadPlotImages> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue.withBlue(100),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Stack(
           children: <Widget>[
@@ -108,7 +126,7 @@ class _UploadPlotImagesState extends State<UploadPlotImages> {
                     children: <Widget>[
                       ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
-                          primary: Colors.white,
+                          primary: Colors.blue.withBlue(100),
                           padding: EdgeInsets.all(12),
                           elevation: 6,
                         ),
@@ -116,11 +134,11 @@ class _UploadPlotImagesState extends State<UploadPlotImages> {
                         icon: Icon(
                           Icons.add_a_photo,
                           size: 27,
-                          color: Colors.blue.withBlue(100),
+                          color: Colors.white,
                         ),
                         label: Text("Choose photos",
                             style: TextStyle(
-                              color: Colors.black,
+                              color: Colors.white,
                             )),
                       ),
                       SizedBox(
@@ -128,7 +146,7 @@ class _UploadPlotImagesState extends State<UploadPlotImages> {
                       ),
                       ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
-                          primary: Colors.white,
+                          primary: Colors.blue.withBlue(100),
                           padding: EdgeInsets.all(12),
                           elevation: 6,
                         ),
@@ -162,22 +180,17 @@ class _UploadPlotImagesState extends State<UploadPlotImages> {
                                   );
                                 });
                           } else {
-                            SnackBar snackbar = SnackBar(
-                                content: Text('Please wait, we are uploading'));
-
-                            ScaffoldMessenger.of(context)
-                                .showSnackBar(snackbar);
                             uploadPlotImages(context);
                           }
                         },
                         icon: Icon(
                           Icons.upload_rounded,
                           size: 27,
-                          color: Colors.blue.withBlue(100),
+                          color: Colors.white,
                         ),
                         label: Text("Upload photos",
                             style: TextStyle(
-                              color: Colors.black,
+                              color: Colors.white,
                             )),
                       ),
                       SizedBox(
@@ -200,13 +213,42 @@ class _UploadPlotImagesState extends State<UploadPlotImages> {
     );
   }
 
-  void uploadPlotImages(context) {
-    if (enoughAccountBal = true) {
+  updateAccount() async {
+    if (account.balance >= 49) {
       setState(() {
-        newAccountBal = accountBal - 50;
-        accountBal = newAccountBal;
-        print("new account balance is $accountBal");
+        enoughAccountBal = true;
       });
+      showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return ProgressDialog(
+              message: "Checking your account...",
+            );
+          });
+      await FirebaseFirestore.instance
+          .collection("payments")
+          .doc(currentUserId)
+          .collection("balance")
+          .doc("account")
+          .update({
+        "wallet":  account.balance - 49,
+      });
+    } else if (account.balance <= 48) {
+      setState(() {
+        enoughAccountBal = false;
+      });
+      Navigator.of(context).pop();
+      SnackBar snackbar = SnackBar(
+          content: Text(
+              'You need a minimum of 49Kshs to upload a plot, Recharge and try again'));
+      ScaffoldMessenger.of(context).showSnackBar(snackbar);
+    }
+  }
+
+  void uploadPlotImages(context) async {
+    updateAccount();
+    if (enoughAccountBal == true) {
       showDialog(
           context: context,
           barrierDismissible: false,
@@ -238,6 +280,7 @@ class _UploadPlotImagesState extends State<UploadPlotImages> {
               "land area": widget.landArea,
               "location": placeLocation,
             }).then((_) {
+              Navigator.of(context).pop();
               SnackBar snackbar =
                   SnackBar(content: Text('Uploaded Successfully'));
               ScaffoldMessenger.of(context).showSnackBar(snackbar);
@@ -248,15 +291,19 @@ class _UploadPlotImagesState extends State<UploadPlotImages> {
                 plotid = Uuid().v4();
               });
               Navigator.pushNamedAndRemoveUntil(
-                  context, HomePage.idscreen, (route) => false);
+                  context, PlotsHomePage.idscreen, (route) => false);
             });
           }
         }).catchError((err) {
           SnackBar snackbar = SnackBar(content: Text(err));
           ScaffoldMessenger.of(context).showSnackBar(snackbar);
-          ;
         });
       }
+    } else {
+      Navigator.of(context).pop();
+      SnackBar snackbar =
+          SnackBar(content: Text('Not enough balance in your account'));
+      ScaffoldMessenger.of(context).showSnackBar(snackbar);
     }
   }
 

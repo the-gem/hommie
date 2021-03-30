@@ -9,6 +9,8 @@ import 'package:pinput/pin_put/pin_put.dart';
 final auth = FirebaseAuth.instance;
 
 class OtpScreen extends StatefulWidget {
+  static const String idscreen = "otpscreen";
+
   final String phone;
   final String accountType;
   final String name;
@@ -176,15 +178,7 @@ class _OtpScreenState extends State<OtpScreen> {
       // Sign the user in (or link) with the credential
       await auth.signInWithCredential(phoneAuthCredential).then((value) async {
         if (value.user != null) {
-          createUserInFirestore();
-          setState(() {
-            isLoggedIn = true;
-            currentUserId = auth.currentUser.uid;
-          });
-          SnackBar snackbar = SnackBar(content: Text('sign in successful'));
-          ScaffoldMessenger.of(context).showSnackBar(snackbar);
-          Navigator.pushNamedAndRemoveUntil(
-              context, HomePage.idscreen, (route) => false);
+          checkUser();
         }
       });
     } catch (e) {
@@ -202,15 +196,7 @@ class _OtpScreenState extends State<OtpScreen> {
         // Sign the user in (or link) with the auto-generated credential
         await auth.signInWithCredential(credential).then((value) async {
           if (value.user != null) {
-            createUserInFirestore();
-            setState(() {
-              isLoggedIn = true;
-              currentUserId = auth.currentUser.uid;
-            });
-            SnackBar snackbar = SnackBar(content: Text('sign in successful'));
-            ScaffoldMessenger.of(context).showSnackBar(snackbar);
-            Navigator.pushNamedAndRemoveUntil(
-                context, HomePage.idscreen, (route) => false);
+            checkUser();
           }
         });
       },
@@ -229,7 +215,7 @@ class _OtpScreenState extends State<OtpScreen> {
           _verificationCode = verificationId;
         });
       },
-      timeout: const Duration(seconds: 30),
+      timeout: const Duration(seconds: 60),
       codeAutoRetrievalTimeout: (String verificationId) {
         setState(() {
           _verificationCode = verificationId;
@@ -238,20 +224,36 @@ class _OtpScreenState extends State<OtpScreen> {
     );
   }
 
-  createUserInFirestore() async {
-    currentUser = MyUser();
-    final DocumentSnapshot documentSnapshot =
-        await usersRef.doc(auth.currentUser.uid).get();
-    if (!documentSnapshot.exists) {
+  Future<void> checkUser() async {
+    final QuerySnapshot result = await FirebaseFirestore.instance
+        .collection('users')
+        .where('id', isEqualTo: auth.currentUser.uid)
+        .get();
+    final List<DocumentSnapshot> documents = result.docs;
+    if (documents.length > 0) {
+      currentUser = MyUser();
+      DocumentSnapshot documentSnapshot =
+          await usersRef.doc(auth.currentUser.uid).get();
+      setState(() {
+        isLoggedIn = true;
+        currentUserId = auth.currentUser.uid;
+        currentUser = MyUser.fromDocument(documentSnapshot);
+      });
+      SnackBar snackbar = SnackBar(content: Text('sign in successful'));
+      ScaffoldMessenger.of(context).showSnackBar(snackbar);
+      Navigator.pushNamedAndRemoveUntil(
+          context, HomePage.idscreen, (route) => false);
+    } else {
       SnackBar snackbar = SnackBar(content: Text('please create a new acount'));
       ScaffoldMessenger.of(context).showSnackBar(snackbar);
       await Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => CreateUserInFirestore(
-                    phoneNumber: widget.phoneNumber,
-                  )));
+        context,
+        MaterialPageRoute(
+          builder: (context) => CreateUserInFirestore(
+            phoneNumber: widget.phoneNumber,
+          ),
+        ),
+      );
     }
-    currentUser = MyUser.fromDocument(documentSnapshot);
   }
 }

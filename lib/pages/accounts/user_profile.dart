@@ -407,7 +407,7 @@ class _UserProfileState extends State<UserProfile> {
     List<int> imageData = byteData.buffer.asUint8List();
     Reference ref = FirebaseStorage.instance
         .ref()
-        .child(fileName); // To be aligned with the latest firebase API(4.0)
+        .child("$currentUserId/$fileName"); // To be aligned with the latest firebase API(4.0)
     UploadTask uploadTask = ref.putData(imageData);
 
     String downloadUrl = await (await uploadTask).ref.getDownloadURL();

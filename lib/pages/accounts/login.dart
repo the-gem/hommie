@@ -54,11 +54,12 @@ class _LoginState extends State<Login> {
                     ),
                     onChanged: (value) {
                       phoneNumber = value;
-                        phone = countryCode + phoneNumber;
-             
+                      phone = "+" + countryCode + phoneNumber;
                     },
                   ),
-                  SizedBox(height: 30,),
+                  SizedBox(
+                    height: 30,
+                  ),
                   GestureDetector(
                     onTap: () {
                       Navigator.push(

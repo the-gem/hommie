@@ -100,7 +100,7 @@ class _UploadRentalImagesState extends State<UploadRentalImages> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue.withBlue(100),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Stack(
           children: <Widget>[
@@ -115,7 +115,7 @@ class _UploadRentalImagesState extends State<UploadRentalImages> {
                     children: <Widget>[
                       ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
-                          primary: Colors.white,
+                          primary: Colors.blue.withBlue(100),
                           padding: EdgeInsets.all(12),
                           elevation: 6,
                         ),
@@ -123,11 +123,11 @@ class _UploadRentalImagesState extends State<UploadRentalImages> {
                         icon: Icon(
                           Icons.add_a_photo,
                           size: 27,
-                          color: Colors.blue.withBlue(100),
+                          color: Colors.white,
                         ),
                         label: Text("Choose photos",
                             style: TextStyle(
-                              color: Colors.black,
+                              color: Colors.white,
                             )),
                       ),
                       SizedBox(
@@ -180,11 +180,11 @@ class _UploadRentalImagesState extends State<UploadRentalImages> {
                         icon: Icon(
                           Icons.upload_rounded,
                           size: 27,
-                          color: Colors.blue.withBlue(100),
+                          color: Colors.white,
                         ),
                         label: Text("Upload photos",
                             style: TextStyle(
-                              color: Colors.black,
+                              color: Colors.white,
                             )),
                       ),
                       SizedBox(
@@ -246,6 +246,7 @@ class _UploadRentalImagesState extends State<UploadRentalImages> {
             "bedrooms": widget.bedrooms,
             "bathrooms": widget.bathrooms,
             "deposit": widget.deposit,
+            "general description": widget.genDescription,
           }).then((_) {
             SnackBar snackbar =
                 SnackBar(content: Text('Uploaded Successfully'));

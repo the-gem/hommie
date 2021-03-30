@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hommie/pages/accounts/all_list_management.dart';
@@ -5,6 +6,7 @@ import 'package:hommie/pages/accounts/login.dart';
 import 'package:hommie/pages/accounts/user_profile.dart';
 import 'package:hommie/pages/general_pages/feedback_page.dart';
 import 'package:hommie/pages/homepage.dart';
+import 'package:hommie/pages/payments/payment.dart';
 import 'package:hommie/pages/properties/plots/plots_home_page.dart';
 
 class DrawerList extends StatefulWidget {
@@ -13,7 +15,11 @@ class DrawerList extends StatefulWidget {
 }
 
 class _DrawerListState extends State<DrawerList> {
+  DocumentReference paymentsRef;
   bool menuOpen = false;
+  Stream<DocumentSnapshot> getAccountBalance() {
+    return FirebaseFirestore.instance.collection("payments").doc(currentUserId).collection("balance").doc("account").snapshots();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,18 +34,66 @@ class _DrawerListState extends State<DrawerList> {
                 height: 40,
                 color: Colors.blue.withBlue(150),
                 child: Center(
-                  child: Text("Account balance $accountBal".toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        letterSpacing: 1,
-                      )),
+                  child: isLoggedIn ? StreamBuilder<DocumentSnapshot>(
+                    stream: getAccountBalance(),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<DocumentSnapshot> snapshot) {
+                      if (snapshot.hasError) {
+                        return Text('Something went wrong');
+                      } else if (snapshot == null ||
+                          snapshot.connectionState == ConnectionState.waiting) {
+                        return Scaffold(
+                          body: CircularProgressIndicator(
+                            strokeWidth: 1,
+                          ),
+                        );
+                      } else if (snapshot.connectionState ==
+                          ConnectionState.active) {
+                        if (snapshot.data.data() != null && snapshot.data.data().isNotEmpty) {
+                          Map<String, dynamic> documentFields =
+                              snapshot.data.data();
+                          return Text(
+                              documentFields.containsKey("wallet")
+                                  ? "Account balance: " +
+                                      documentFields["wallet"].toString()
+                                  : "Account balance: 0",
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                letterSpacing: 1,
+                              ));
+                        } else if (snapshot.data.data() == null || snapshot.data.data().isEmpty){
+                          return Text("Account balance 0".toUpperCase(),
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                letterSpacing: 1,
+                              ));
+                        }
+                      } else {
+                        return Text("Account balance 0".toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              letterSpacing: 1,
+                            ));
+                      }
+                    },
+                  ) : Text("Account balance 0".toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              letterSpacing: 1,
+                            )),
                 ),
               ),
             ),
             decoration: isLoggedIn &&
-                    (currentUser.profilePicture != null ||
+                    (currentUser.profilePicture != null &&
                         currentUser.profilePicture.isNotEmpty)
                 ? BoxDecoration(
                     backgroundBlendMode: BlendMode.multiply,
@@ -63,7 +117,7 @@ class _DrawerListState extends State<DrawerList> {
           title: Text('Plots for sale'.toUpperCase()),
           onTap: () {
             Navigator.pushNamedAndRemoveUntil(
-                context, PLotsHomePage.idscreen, (route) => false);
+                context, PlotsHomePage.idscreen, (route) => false);
           },
         ),
         ListTile(
@@ -72,6 +126,16 @@ class _DrawerListState extends State<DrawerList> {
             isLoggedIn
                 ? Navigator.push(context,
                     MaterialPageRoute(builder: (context) => UserProfile()))
+                : Navigator.pushNamedAndRemoveUntil(
+                    context, Login.idscreen, (route) => false);
+          },
+        ),
+        ListTile(
+          title: Text('payments'.toUpperCase()),
+          onTap: () {
+            isLoggedIn
+                ? Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => PaymentsPage()))
                 : Navigator.pushNamedAndRemoveUntil(
                     context, Login.idscreen, (route) => false);
           },

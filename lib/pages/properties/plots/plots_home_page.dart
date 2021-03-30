@@ -11,13 +11,13 @@ import 'package:hommie/pages/properties/plots/plot_full_page.dart';
 import 'package:hommie/widgets/drawer_list.dart';
 import 'package:hommie/pages/homepage.dart';
 
-class PLotsHomePage extends StatefulWidget {
+class PlotsHomePage extends StatefulWidget {
   static const String idscreen = "plotshomescreen";
   @override
-  _PLotsHomePageState createState() => _PLotsHomePageState();
+  _PlotsHomePageState createState() => _PlotsHomePageState();
 }
 
-class _PLotsHomePageState extends State<PLotsHomePage> {
+class _PlotsHomePageState extends State<PlotsHomePage> {
   GoogleMapController mapController;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<Marker> allMarkers = [];
@@ -56,9 +56,9 @@ class _PLotsHomePageState extends State<PLotsHomePage> {
     });
     super.initState();
   }
+
   @override
-  void dispose() { 
-    
+  void dispose() {
     super.dispose();
   }
 
@@ -75,40 +75,40 @@ class _PLotsHomePageState extends State<PLotsHomePage> {
       List<Plot> plotsTimelinePosts = plotsSnapshot.docs
           .map((plotsSnapshot) => Plot.fromDocument(plotsSnapshot))
           .toList();
-     
-        this.plots = plotsTimelinePosts;
-        plots.isEmpty || plots == null
-            ? mapBottomPadding = 0
-            : mapBottomPadding = 120;
-        plots.forEach((element) {
-          allMarkers.add(Marker(
-              markerId: MarkerId(element.plotId),
-              draggable: false,
-              infoWindow: InfoWindow(
-                  title: element.plotTitle,
-                  snippet: element.price,
-                  onTap: () {
-                    // moveCamera();
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PlotFullPage(
-                            price: element.price,
-                            plotTitle: element.plotTitle,
-                            listingCoordinates: element.listingCoordinates,
-                            landArea: element.landArea,
-                            imageUrls: element.imageUrls,
-                            location: element.location,
-                            plotId: element.plotId,
-                            plotOwnerId: element.userId,
-                            genDescription: element.genDescription,
-                          ),
-                        ));
-                  }),
-              position: LatLng(element.listingCoordinates.latitude,
-                  element.listingCoordinates.longitude)));
-          this.allMarkers = allMarkers;
-      
+
+      this.plots = plotsTimelinePosts;
+      plots.isEmpty || plots == null
+          ? mapBottomPadding = 0
+          : mapBottomPadding = 120;
+      plots.forEach((element) {
+        allMarkers.add(Marker(
+            markerId: MarkerId(element.plotId),
+            draggable: false,
+            infoWindow: InfoWindow(
+                title: element.plotTitle,
+                snippet: element.price,
+                onTap: () {
+                  // moveCamera();
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PlotFullPage(
+                          price: element.price,
+                          plotTitle: element.plotTitle,
+                          listingCoordinates: element.listingCoordinates,
+                          landArea: element.landArea,
+                          imageUrls: element.imageUrls,
+                          location: element.location,
+                          plotId: element.plotId,
+                          plotOwnerId: element.userId,
+                          genDescription: element.genDescription,
+                        ),
+                      ));
+                }),
+            position: LatLng(element.listingCoordinates.latitude,
+                element.listingCoordinates.longitude)));
+        this.allMarkers = allMarkers;
+
         _pageController = PageController(initialPage: 1, viewportFraction: 0.8);
         // ..addListener(_onScroll);
       });
@@ -327,7 +327,7 @@ class _PLotsHomePageState extends State<PLotsHomePage> {
                       children: [
                         Container(
                           height: 250,
-                          width: 110,
+                          width: 105,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(10),
@@ -340,22 +340,29 @@ class _PLotsHomePageState extends State<PLotsHomePage> {
                           ),
                         ),
                         SizedBox(
-                          width: 20,
+                          width: 8,
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            Text(
-                              "${plots[index].plotTitle}".toUpperCase(),
-                              style: TextStyle(
-                                color: Colors.blue.withBlue(150),
-                                fontWeight: FontWeight.bold,
+                            Container(
+                              width: 140,
+                              child: Text(
+                                "${plots[index].plotTitle}".toUpperCase(),
+                                style: TextStyle(
+                                  color: Colors.blue.withBlue(150),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             Text("kshs ${plots[index].price}"),
                             Text("${plots[index].landArea} acres"),
                           ],
+                        ),
+                        SizedBox(
+                          width: 8,
                         ),
                       ],
                     ),

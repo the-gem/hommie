@@ -177,6 +177,29 @@ class _AddRentalBasicDetailsState extends State<AddRentalBasicDetails> {
               ),
               SizedBox(
                 height: 15,
+              ),Container(
+                // width: 250,
+                child: TextField(
+                  minLines: 1,
+                  maxLines: 20,
+                  decoration: InputDecoration(
+                    hintStyle: TextStyle(
+                      color: Colors.black,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(30),
+                      ),
+                    ),
+                    labelText: 'general description',
+                  ),
+                  onChanged: (value) {
+                    genDescription = value;
+                  },
+                ),
+              ),
+              SizedBox(
+                height: 15,
               ),
               GestureDetector(
                 onTap: () => addRentalAmenities(),

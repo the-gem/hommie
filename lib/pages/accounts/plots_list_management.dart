@@ -147,7 +147,7 @@ class _PlotsListManagementState extends State<PlotsListManagement> {
                               vertical: 2,
                             ),
                             child: Text(
-                              "Kshs ${document["price"]} ",
+                              "Kshs" + document["price"],
                               style: TextStyle(
                                 fontSize: 21,
                                 fontWeight: FontWeight.bold,
